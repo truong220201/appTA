@@ -3,167 +3,156 @@ import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Tex
 import { FontAwesome5 } from '@expo/vector-icons'; 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
+import { firebaseApp } from '../../components/firebaseConfig';
+import { getFirestore } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore"; 
+import HTMLView from 'react-native-htmlview';
 
 
-export default class huongdan extends React.Component{ 
+export default class Home extends React.Component{ 
+    constructor(props) {
+        super(props);
+        //this.itemRef = getDatabase(firebaseApp);
+        //console.log(this.itemRef);
+        this.state = {
+            keys:[],
+            item:[],
+            nameqs:[],
+            leng:0,
+            };
+      }
+      async listenForItems(itemRef){
+        const db = getFirestore(firebaseApp);
+        //console.log(db);
+        //const docRef = doc(db, "Quiz", "03ZnOo7bgWhJvJU9Th9G");
+        //const docSnap = await getDoc(docRef);
+        const querySnapshot = await getDocs(collection(db, "QaA_Category"));
+        querySnapshot.forEach((doc) => {
+          //console.log(`${doc.id} => ${doc.data()}`);
+          //console.log(`${doc.data().Title}`);
+          //console.log(`length: ${doc.id.length}`)
+          this.setState({
+            //item:this.state.item.push(data)
+            //item:Object.keys(`${doc.data().Title}`)
+            keys:[...this.state.keys,`${doc.id}`],
+            item:[...this.state.item,`${doc.data().name}`],
+            nameqs:[...this.state.item,`${doc.data().name_Question}`],
+            leng:`${doc.id.length}`
+          })
+        
+        });
+        //console.log('item:'+this.state.item);
+        //console.log('length:'+this.state.leng);
+    }
   render(){
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
-    const { navigation,route } = this.props;
-    const { id,name,ten} = route.params;
+    const { navigation } = this.props;
+    var l = this.state.leng;
+    //console.log(this.state.keys);
+    
     return (
-    <View style={styles.container}>
-        <View style={styles.vw1}>
-            <Text style={styles.txtTitle}>Test: {ten}</Text>
+    <LinearGradient colors={[ '#aef6d6' , '#fff' , '#fff' , '#fff']} style={styles.container}>
+        <View style = {styles.vw1}>
+            <Icon name='list' style={{marginRight:10,}}/>
+            <Text style={{color:'black',fontSize:20,fontWeight:'bold',}}>Giáo trình chính</Text>
         </View>
         <View style={styles.vw2}>
-            <View style={styles.yellowView}>
-                <View style={styles.iconA}>
-                    <Icon name = {'lock-clock'} size={40} color={'orange'} />
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{height:80,}}></View>
+                <View style={styles.content} >
+                {
+                    //Số hàng ngang
+                    [...Array(2)].map((o,n) => {
+                        return(
+                            /*
+                            <View key={n} style={{height:windowHeight/4,padding:20,flexDirection:'row'}}>
+                                {
+                                    //Số phần tử nằm trong hàng ngang đó 
+                                    [...Array(2)].map((o,n) => {
+                                        //Lấy id sau khi click
+                                        return(
+                                            <TouchableOpacity key={n} onPress={()=>navigation.navigate('menuScreen',{loaiId: 1})} style={{flex:1,alignItems:'center'}}>
+                                                <Image
+                                                    style={styles.circle}
+                                                    source={{uri:'https://www.clipartmax.com/png/middle/171-1715839_purchase-book-icon-book-icon-green-png.png'}}
+                                                />
+                                                <View style={styles.vTxtLoai}>
+                                                    <Text style={styles.txtLoai}>Phát âm</Text>
+                                                </View>
+                                            </TouchableOpacity>
+                                        )
+                                    }
+                                    )
+                                }
+                            </View>
+                            */
+                            <View key={n} style={{height:windowHeight/4,padding:20,flexDirection:'row'}}>
+                                <TouchableOpacity key={n} onPress={()=>navigation.navigate('menuScreen',{loaiId: 1,ten:this.state.item[n],name:this.state.nameqs[n],id:this.state.keys[n],})} style={{flex:1,alignItems:'center'}}>
+                                    <Image
+                                        style={styles.circle}
+                                        source={{uri:'https://www.clipartmax.com/png/middle/171-1715839_purchase-book-icon-book-icon-green-png.png'}}
+                                    />
+                                    <View style={styles.vTxtLoai}>
+                                        <HTMLView value={this.state.item[n]}/>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        )
+                    }
+                    )
+                }
                 </View>
-                <View style={styles.contentA}>
-                    <Text style={styles.txtA}>Thời gian</Text>
-                    <Text style={styles.txtB}>45 Phút</Text>
-                </View>
-            </View>
-            <View style={styles.blueView}>
-                <View style={styles.iconA}>
-                    <Icon name = {'contact-support'} size={40} color={'#4c93f9'} />
-                </View>
-                <View style={styles.contentA}>
-                    <Text style={styles.txtA}>Số câu</Text>
-                    <Text style={styles.txtB}>50</Text>
-                </View>
-            </View>
+
+            </ScrollView>
         </View>
-        <View style={styles.vw3}>
-            <View style={styles.contentView}>
-                <View style={styles.viewTxtC}>
-                    <Icon name = {'content-paste'} size={40} color={'#656565'} style={{margin:5,}} />
-                    <Text style={styles.txtC}>Hướng dẫn</Text>
-                </View>
-                <View>
-                    <Text style={styles.txtD}>1. Trả lời đúng câu hỏi để được điểm</Text>
-                    <Text style={styles.txtD}>2. Trả lời sai không bị trừ điểm</Text>
-                    <Text style={styles.txtD}>3. Nộp bài để nhận kết quả</Text>
-                </View>
-            </View>
-        </View>
-        <View style={styles.vw4}>
-            <TouchableOpacity onPress={()=>navigation.navigate('testScreen',{baitap: id,n:1,ten:ten})} style={styles.btnStart}>
-                <Text style={styles.txtStart}>Làm bài</Text>
-            </TouchableOpacity>
-        </View>
-    </View>
+        
+    </LinearGradient>
 )
-}};
+}
+componentDidMount(){
+    this.listenForItems(this.itemRef);
+}
+};
 const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: '#fff',
       alignItems: 'center',
-      justifyContent:'center',
-      zIndex:1,
-    },
-    txtTitle:{
-        top:40,
-        margin:10,
-        fontSize:24,
     },
     vw1:{
-        justifyContent:'center',
+        height:100,
+        padding:10,
         width:'100%',
-        flex:2,
-        
+        alignItems:'center',
+        flexDirection:'row',
+        paddingTop:20,
+        backgroundColor:'#f5f5f500',
+        position:'absolute',
+        zIndex:100,
     },
     vw2:{
+        flex:11,
         width:'100%',
-        flex:2,
-        flexDirection:'row',
-        alignItems:'center'
     },
-    vw3:{
-        width:'100%',
-        flex:5,
+    content:{
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    circle:{
+        borderWidth:1,
+        width:100,
+        height:100,
+        borderRadius:50
+    },
+    vTxtLoai:{
+        alignItems:'center',
         padding:10,
+        
     },
-    vw4:{
-        width:'100%',
-        flex:2,
-        alignItems:'center',
-    },
-    yellowView:{
-        flex:1,
-        borderWidth:2,
-        height:'60%',
-        borderColor:'#e97430',
-        margin:10,
-        borderRadius:20,
-        flexDirection:'row',
-        padding: 10,
-    },
-    blueView:{
-        flex:1,
-        borderWidth:2,
-        height:'60%',
-        borderColor:'#4c93f9',
-        margin:10,
-        borderRadius:20,
-        flexDirection:'row',
-        padding: 10,
-    },
-    iconA:{
-        flex:1,
-        alignItems:'center',
-        justifyContent:'center',
-    },
-    contentA:{
-        flex:2,
-        justifyContent:'center',
-    },
-    txtA:{
+    txtLoai:{
+        color:'#757575',
         fontSize:17,
-        color:'#7e7e7e',
-    },
-    txtB:{
-        fontSize:18,
         fontWeight:'bold'
-    },
-    viewTxtC:{
-        flexDirection:'row',
-    },
-    txtC:{
-        fontSize:25,
-        top:8,
-        color:'#656565',
-    },
-    txtD:{
-        fontSize:19,
-        marginTop:5,
-        marginBottom:5,
-        color:'#656565',
-    },
-    contentView:{
-        borderWidth:3,
-        borderColor:'#f0f0f0',
-        borderRadius:20,
-        padding:20,
-    },
-    btnStart:{
-        width: '50%',
-        height:'40%',
-        alignItems:'center',
-        justifyContent:'center',
-        borderRadius:20,
-        backgroundColor:'#6ee0a0',
-        elevation:2,
-    },
-    txtStart:{
-        color:'#fff',
-        fontSize:18,
-        textShadowColor: '#ffffffb3',
-        textShadowOffset: {width: -1, height: 1},
-        textShadowRadius: 10,
-    }   
-    
+    }
   });
