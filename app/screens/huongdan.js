@@ -10,11 +10,11 @@ export default class huongdan extends React.Component{
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const { navigation,route } = this.props;
-    const { id,name} = route.params;
+    const { id,name,ten} = route.params;
     return (
     <View style={styles.container}>
         <View style={styles.vw1}>
-            <Text style={styles.txtTitle}>Unit 1: Phát âm</Text>
+            <Text style={styles.txtTitle}>Test: {ten}</Text>
         </View>
         <View style={styles.vw2}>
             <View style={styles.yellowView}>
@@ -50,7 +50,7 @@ export default class huongdan extends React.Component{
             </View>
         </View>
         <View style={styles.vw4}>
-            <TouchableOpacity onPress={()=>navigation.navigate('testScreen',{baitap: id,n:1,})} style={styles.btnStart}>
+            <TouchableOpacity onPress={()=>navigation.navigate('testScreen',{baitap: id,n:1,ten:ten})} style={styles.btnStart}>
                 <Text style={styles.txtStart}>Làm bài</Text>
             </TouchableOpacity>
         </View>
