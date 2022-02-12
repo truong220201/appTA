@@ -7,6 +7,8 @@ import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore"; 
 import HTMLView from 'react-native-htmlview';
+import CountDown from 'react-native-countdown-component';
+import RenderHtml from 'react-native-render-html';
 
 export default class testScreen extends React.Component{ 
     
@@ -15,11 +17,15 @@ export default class testScreen extends React.Component{
         //this.itemRef = getDatabase(firebaseApp);
         //console.log(this.itemRef);
         const { route,navigation } = this.props;
-        const { baitap,name,n} = route.params;
+        const { baitap,name,n,ten} = route.params;
         //console.log(baitap)
         this.i = baitap;
+        this.detai= ten;
         this.num = n;
         this.state = {
+            hideBack:'flex',
+            hideNext:'flex',
+            timer:500,
             keys:[],
             item:[],
             itemQ:1,
@@ -110,13 +116,36 @@ export default class testScreen extends React.Component{
         )
 
     };
-    goto(g){
+    goNext(g){
         if(g>10){
             this.listenForItems(1)
         }else{
             this.listenForItems(g)
         }
     };
+    goBack(g){
+        if(g<1){
+            this.listenForItems(10)
+        }else{
+            this.listenForItems(g)
+        }
+    };
+    componentDidMount(){
+        this.listenForItems(this.num);
+        
+        this.interval = setInterval(
+            () => this.setState((prevState)=> ({ timer: prevState.timer - 1 })),
+            1000
+          );
+    }
+    componentDidUpdate(){
+        if(this.state.timer === 1){ 
+          clearInterval(this.interval);
+        }
+    }
+    componentWillUnmount(){
+        clearInterval(this.interval);
+    }
   render(){
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
@@ -124,14 +153,42 @@ export default class testScreen extends React.Component{
     const { baitap,name} = route.params;
     const i = baitap;
     var l = this.state.itemQ;
+    const question = {html: this.state.q,};
+    const da1 = {html: this.state.a1,};
+    const da2 = {html: this.state.a2,};
+    const da3 = {html: this.state.a3,};
+    const da4 = {html: this.state.a4,};
     console.log(l);
-    
+
+    if(l==1){
+        this.state.hideBack='none';
+    }else if(l==10){
+        this.state.hideNext='none';
+    }else{
+        this.state.hideNext='flex';
+        this.state.hideBack='flex';
+    }
     return (
         
     <View style={styles.container}>
-        
         <View style={styles.vw1}>
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} >
+            <Text style={{fontWeight:'bold',}}>{this.detai}</Text>
+            <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+            <Text >Thời gian làm bài: </Text>
+            <CountDown
+                size={20}
+                until={45*60} 
+                onFinish={() => alert('Finished')}
+                digitStyle={{backgroundColor: '#FFF',}}
+                digitTxtStyle={{color: '#1CC625'}}
+                timeLabelStyle={{color: 'red', fontWeight: 'bold'}}
+                separatorStyle={{color: '#1CC625'}}
+                timeToShow={['M', 'S']}
+                timeLabels={{m: null, s: null}}
+                showSeparator
+                />
+            </View>
+            <ScrollView  horizontal={true} showsHorizontalScrollIndicator={false} >
                 {
                             
                     [...Array(10)].map((o,n) => {
@@ -153,47 +210,82 @@ export default class testScreen extends React.Component{
                 }
             </ScrollView>
         </View>
-        <View style={styles.vw2}>   
-            <Text style={styles.txtLevel}>Câu {this.state.itemQ}</Text>
-            <HTMLView  style={styles.txtQuestion} value={this.state.q}/>
-        </View>
-        <View style={styles.vw3}>
-            <TouchableOpacity  style={styles.contentView}>
-                <Text style={styles.abcd}>A.</Text>
-                <HTMLView style={styles.txtAnswer} value={this.state.a1}/>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.contentView}>
-                <Text style={styles.abcd}>B.</Text>
-                <HTMLView style={styles.txtAnswer} value={this.state.a2}/> 
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.contentView}>
-                <Text style={styles.abcd}>C.</Text>
-                <HTMLView style={styles.txtAnswer} value={this.state.a3}/>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.contentView}>
-                <Text style={styles.abcd}>D.</Text>
-                <HTMLView style={styles.txtAnswer} value={this.state.a4}/>
-            </TouchableOpacity>
-        </View>
-        <View style={styles.vw4}>
-            <TouchableOpacity  onPress={()=>this.goto(this.state.itemQ+1)} style={styles.viewBtnNext}>
-                <Text style={styles.txtNext}>Câu kế tiếp</Text>
-                <View style={styles.btnNext}>
-                    <Icon name = {'arrow-forward-ios'} size={20} color={'#53ad71'} style={{margin:5,}} />
-                </View>
-            </TouchableOpacity>
+        <View style={{flex:4,}}>
+        <ScrollView style={{width:windowWidth,}} showsScrollIndicator={false}>
+            <View style={styles.vw2}>   
+                <Text style={styles.txtLevel}>Câu {this.state.itemQ}</Text>
+                <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={question} />
+            </View>
+            <View style={styles.vw3}>
+                <TouchableOpacity  style={styles.contentView}>
+                    <Text style={styles.abcd}>A.</Text>
+                    <View style={{top:5,}}>
+                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={da1} />
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.contentView}>
+                    <Text style={styles.abcd}>B.</Text>
+                    <View style={{top:5,}}>
+                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={da2} />
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.contentView}>
+                    <Text style={styles.abcd}>C.</Text>
+                    <View style={{top:5,}}>
+                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={da3} />
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.contentView}>
+                    <Text style={styles.abcd}>D.</Text>
+                    <View style={{top:5,}}>
+                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={da4} />
+                    </View>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.vw4}>
+                <TouchableOpacity  onPress={()=>this.goBack(this.state.itemQ-1)} style={{
+                                                                                        display:this.state.hideBack,
+                                                                                        flexDirection:'row',
+                                                                                        height:'58%',
+                                                                                        alignItems:'center',
+                                                                                        justifyContent:'center',
+                                                                                        flex:1,
+                                                                                        justifyContent:'flex-start',}}>
+                    <View style={styles.btnNext}>
+                        <Icon name = {'arrow-back-ios'} size={20} color={'#53ad71'} style={{margin:5,}} />
+                    </View>
+                    <Text style={styles.txtNext}>Câu trước đó</Text>
+                </TouchableOpacity>
+                <TouchableOpacity  onPress={()=>this.goNext(this.state.itemQ+1)} style={{
+                                                                                        display:this.state.hideNext,
+                                                                                        flexDirection:'row',
+                                                                                        height:'58%',
+                                                                                        alignItems:'center',
+                                                                                        justifyContent:'center',
+                                                                                        flex:1,
+                                                                                        justifyContent:'flex-end',
+                                                                                    }}>
+                    <Text style={styles.txtNext}>Câu kế tiếp</Text>
+                    <View style={styles.btnNext}>
+                        <Icon name = {'arrow-forward-ios'} size={20} color={'#53ad71'} style={{margin:5,}} />
+                    </View>
+                </TouchableOpacity>
+                
+            </View>
+        </ScrollView>
         </View>
     </View>
 )
 }
 
-componentDidMount(){
-    this.listenForItems(this.num);
-}
+
 };
 
 
-
+const html = StyleSheet.create({
+    span:{
+    }
+})
 const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -208,17 +300,22 @@ const styles = StyleSheet.create({
         fontSize:24,
     },
     vw1:{
+        alignItems:'center',
         width:'100%',
-        flex:2,
+        height:20,
         borderBottomWidth:1,
         borderBottomColor:'#b5b5b5',
-        flexDirection:'row',
+        marginTop:20,
+        flex:1,
     },
+    vw1a:{
+    },
+    
     vw2:{
         width:'100%',
         flex:2,
         padding:10,
-        justifyContent:'center'
+        justifyContent:'center',
     },
     vw3:{
         width:'100%',
@@ -230,7 +327,7 @@ const styles = StyleSheet.create({
         flex:2,
         flexDirection:'row',
         alignItems:'center',
-        justifyContent:'flex-end'
+        padding:5,
 
     },
     contentView:{
@@ -246,14 +343,15 @@ const styles = StyleSheet.create({
         color:'#858585',
         fontSize:20,
         marginBottom:'5%',
+        flexDirection:'row',
     },
-    txtQuestionA:{
-        color:'#303030',
-        fontSize:17,
+    txtQuestion:{
+        
     },
     abcd:{
         color:'#4c93f9',
         fontSize:20,
+        marginRight:8,
     },
     txtAnswer:{
         marginLeft:5,
@@ -265,6 +363,16 @@ const styles = StyleSheet.create({
         height:'58%',
         alignItems:'center',
         justifyContent:'center',
+        flex:1,
+        justifyContent:'flex-end',
+    },
+    viewBtnPrev:{
+        flexDirection:'row',
+        height:'58%',
+        alignItems:'center',
+        justifyContent:'center',
+        flex:1,
+        justifyContent:'flex-start',
         
     },
     txtNext:{
@@ -292,6 +400,16 @@ const styles = StyleSheet.create({
         justifyContent:'center',
     },
     btnNext:{
+        borderWidth:2,
+        margin:5,
+        height:50,
+        width: 50,
+        borderRadius:30,
+        borderColor:'#53ad71',
+        alignItems:'center',
+        justifyContent:'center',
+    },
+    btnPrev:{
         borderWidth:2,
         margin:5,
         height:50,
