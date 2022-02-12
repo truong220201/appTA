@@ -29,18 +29,7 @@ export default class layerMenu extends React.Component{
                         <Icon color={'#88e7c6'} size={35} name='done'/>
                     </View>
                 </View>
-                <View style={styles.btnInfo}>
-                    <View style={{height:'100%',flex:1,justifyContent:'center'}}>
-                        <Icon color={'#6dde9e'} size={35} name='auto-awesome'/>
-                    </View>
-                    <View style={{height:'100%',flex:4,justifyContent:'center'}}>
-                        <Text style={{fontSize:20,fontWeight:'bold'}}>Học {ten}</Text>
-                    </View>
-                    <View style={{height:'100%',flex:1,justifyContent:'center'}}>
-                        <Icon color={'#88e7c6'} size={35} name='done'/>
-                    </View>
-                </View>
-                <TouchableOpacity onPress={()=>{navigation.navigate('huongdan',{id:id})}} style={styles.btnInfo}>
+                <TouchableOpacity onPress={()=>{navigation.navigate('huongdan',{id:id,ten:ten})}} style={styles.btnInfo}>
                     <View style={{height:'100%',flex:1,justifyContent:'center'}}>
                         <Icon color={'#6dde9e'} size={35} name='auto-awesome'/>
                     </View>
@@ -74,7 +63,6 @@ const styles = StyleSheet.create({
     },
     vw1:{
         paddingLeft:'10%',
-        flex:2,
         width:'100%',
     },
     vw2:{
