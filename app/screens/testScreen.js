@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons'; 
-import { LinearGradient } from 'expo-linear-gradient';
+import { Dimensions,TouchableOpacity,ScrollView, Text, View,Button,StyleSheet,Alert,BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore"; 
-import HTMLView from 'react-native-htmlview';
 import CountDown from 'react-native-countdown-component';
 import RenderHtml from 'react-native-render-html';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
 
 export default class testScreen extends React.Component{ 
     
@@ -17,6 +17,7 @@ export default class testScreen extends React.Component{
         //this.itemRef = getDatabase(firebaseApp);
         //console.log(this.itemRef);
         const { route,navigation } = this.props;
+        this.nvt = navigation;
         const { baitap,name,n,ten} = route.params;
         //console.log(baitap)
         this.i = baitap;
@@ -44,8 +45,43 @@ export default class testScreen extends React.Component{
             a4:'',
             };
       }
-      
+      //Thay doi cau hoi/ tra loi
+      check(inum){
+        [...Array(this.state.item.length)].map((o,n) => {
+        if(this.state.itemK[inum-1] == this.state.item[n]){
+            //console.log('ok ');
+            this.setState({
+                //item:this.state.item.push(data)
+                //item:Object.keys(`${doc.data().Title}`)
+                //itemK:[...this.state.itemK,`${doc.data().True_ans}`],
+                itemQ:inum,
+                q:this.state.nameqs[inum-1],
+                a1:this.state.opt0[inum-1],
+                a2:this.state.opt1[inum-1],
+                a3:this.state.opt2[inum-1],
+                a4:this.state.opt3[inum-1],
+                //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
+
+              })
+              console.log('check function');
+              console.log('inum:',inum);
+              console.log('lengqs: ',this.state.nameqs.length);
+        }
+        })
+    };
+    reset(){    
+        this.setState ({
+            item:[],
+            opt0:[],
+            opt1:[],
+            opt2:[],
+            opt3:[],
+            itemK:[],
+            nameqs:[],
+            });
+    };
       async listenForItems(inum){
+        
         const db = getFirestore(firebaseApp);
         //console.log(db);
         //const docRef = doc(db, "Quiz", "03ZnOo7bgWhJvJU9Th9G");
@@ -60,92 +96,171 @@ export default class testScreen extends React.Component{
                     itemK:[...this.state.itemK,`${doc.id}`],
                     nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
                 })
-                //console.log(this.state.itemK);
+                console.log('length item k: ',this.state.itemK.length);
             }
         }),
-
+        
         querySnapshot.forEach((doc) => {
           //console.log(`${doc.id} => ${doc.data().id_Question}`);
           //console.log(`${doc.data().Option_ans[0]}`);
           //console.log(`length: ${doc.id.length}`);
           
          //console.log(this.i);
-         //console.log(this.state.item)
+         console.log(this.state.item.length)
          //console.log(this.state.itemK);
+         
          this.setState({
             //item:this.state.item.push(data)
             //item:Object.keys(`${doc.data().Title}`)
-            //item:[...this.state.item,`${doc.data().Option_ans[0]}`],
-            //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
-            
+            item:[...this.state.item,`${doc.data().id_Question}`],
+            nameqs:[...this.state.nameqs,1],
+            opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
+            opt1:[...this.state.opt1,`${doc.data().Option_ans[1]}`],
+            opt2:[...this.state.opt2,`${doc.data().Option_ans[2]}`],
+            opt3:[...this.state.opt3,`${doc.data().Option_ans[3]}`],
         });
         //console.log(`${doc.data().id_Question}`);
         //console.log(this.state.itemK[this.num])
-        if(this.state.itemK[inum-1] ==`${doc.data().id_Question}`){
+        //console.log('stop');
+
+        //Dat gia tri cho phan tu thu nhat
+        if(this.state.itemK[0] == this.state.item[this.state.item.length-1]){
             //console.log('ok ');
             this.setState({
                 //item:this.state.item.push(data)
                 //item:Object.keys(`${doc.data().Title}`)
-                //itemK:[...this.state.itemK,`${doc.data().True_ans}`],
+
+                //re-render khi su dung shouldComponentUpdate
+                itemK:[...this.state.itemK,1],
+
+                //
                 itemQ:inum,
                 q:this.state.nameqs[inum-1],
-                a1:`${doc.data().Option_ans[0]}`,
-                a2:`${doc.data().Option_ans[1]}`,
-                a3:`${doc.data().Option_ans[2]}`,
-                a4:`${doc.data().Option_ans[3]}`,
+                a1:this.state.opt0[inum-1],
+                a2:this.state.opt1[inum-1],
+                a3:this.state.opt2[inum-1],
+                a4:this.state.opt3[inum-1],
+                
                 //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
-
               })
-              console.log('hellob');
+              console.log('helloc');
               console.log('inum:',inum);
+              //console.log(this.state.a1);
+
         }
-            
-          
-        
-        });
+
+        }); 
         //console.log('item:'+this.state.item);
         //console.log('length:'+this.state.leng);
     }
-    static navigationOptions = {
-        title : 'ok',
-        headerStyle:{
-            backgroundColor:'red',
-        },
-        headerRight:(   
-            <TouchableOpacity><Text>info</Text></TouchableOpacity>
-        )
-
+    goto(g){
+        this.check(g);
+        this.listenForItems(g);
+        this.reset();
     };
     goNext(g){
+        
         if(g>10){
-            this.listenForItems(1)
+            this.listenForItems(1);
+            this.reset();
+            
         }else{
-            this.listenForItems(g)
+            this.check(g);
+            this.listenForItems(g);
+            this.reset();
         }
     };
     goBack(g){
+        
         if(g<1){
             this.listenForItems(10)
+            this.reset();
         }else{
-            this.listenForItems(g)
+            this.check(g);
+            this.listenForItems(g);
+            this.reset();
+
         }
     };
+
+    qsExit = () =>
+        Alert.alert(
+            "Nhắc nhở",
+            "Bạn có muốn thoát?",
+            [
+                {
+                    text: "Không",
+                    onPress: () => null,
+                    style: "cancel",
+                },
+                {
+                    text: "Có",
+                    onPress: ()=>{this.nvt.navigate('huongdan',{id:this.i,ten:this.detai})},
+                    style: "cancel",
+                },
+            ],
+            {
+            cancelable: true,
+            onDismiss: () =>
+                Alert.alert(
+                "This alert was dismissed by tapping outside of the alert dialog."
+                ),
+            }
+        );
+    backAction = () => {
+        //Khong ho tro tieng Viet
+        Alert.alert("Hold on!", "Are you sure you want to go back?", [
+            {
+            text: "Cancel",
+            onPress: () => null,
+            style: "cancel"
+            },
+            { text: "YES", onPress: ()=>{this.nvt.navigate('huongdan',{id:this.i,ten:this.detai})} }
+        ]);
+        return true;
+    };
+
+
+
+
+    //-----------
+
+
+
+
+
     componentDidMount(){
+
         this.listenForItems(this.num);
-        
+        //Timer
         this.interval = setInterval(
             () => this.setState((prevState)=> ({ timer: prevState.timer - 1 })),
             1000
           );
+        //BackHandler
+        this.backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        this.backAction
+        );
     }
     componentDidUpdate(){
         if(this.state.timer === 1){ 
           clearInterval(this.interval);
         }
     }
+    //tranh render lai khong can thiet
+    shouldComponentUpdate(nextProps, nextState) {
+        if (this.state.itemK !== nextState.itemK) {
+          return true;
+        }
+        return false;
+    }
     componentWillUnmount(){
         clearInterval(this.interval);
+
+        this.backHandler.remove();
     }
+    
   render(){
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
@@ -170,23 +285,34 @@ export default class testScreen extends React.Component{
     }
     return (
         
+        
     <View style={styles.container}>
         <View style={styles.vw1}>
-            <Text style={{fontWeight:'bold',}}>{this.detai}</Text>
+
             <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
-            <Text >Thời gian làm bài: </Text>
-            <CountDown
-                size={20}
-                until={45*60} 
-                onFinish={() => alert('Finished')}
-                digitStyle={{backgroundColor: '#FFF',}}
-                digitTxtStyle={{color: '#1CC625'}}
-                timeLabelStyle={{color: 'red', fontWeight: 'bold'}}
-                separatorStyle={{color: '#1CC625'}}
-                timeToShow={['M', 'S']}
-                timeLabels={{m: null, s: null}}
-                showSeparator
-                />
+                <TouchableOpacity style={{marginLeft:10,flex:1,justifyContent:'flex-start',flexDirection:'row'}} onPress={()=>this.qsExit()}>
+                    <Icon name = {'arrow-back-ios'} size={20} color={'black'} style={{margin:5,}} />
+                </TouchableOpacity>
+                <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',flex:1,}}>
+                    <CountDown
+                        size={17}
+                        until={45*60} 
+                        onFinish={() => alert('Hết giờ!')}
+                        digitStyle={{backgroundColor: '#FFF',}}
+                        digitTxtStyle={{color: '#53ad71'}}
+                        timeLabelStyle={{color: 'red'}}
+                        separatorStyle={{color: '#53ad71'}}
+                        timeToShow={['M', 'S']}
+                        timeLabels={{m: null, s: null}}
+                        showSeparator
+                        />
+                    <Icon name = {'alarm'} size={20} color={'#1CC625'} style={{margin:5,}} />
+                </View>
+                <View style={{flex:1,justifyContent:'flex-end',flexDirection:'row',paddingRight:5,}}>
+                    <TouchableOpacity style={styles.btnNopbai}>
+                        <Text style={{color:'#1CC625',fontSize:15,}}>Nộp bài</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
             <ScrollView  horizontal={true} showsHorizontalScrollIndicator={false} >
                 {
@@ -194,13 +320,13 @@ export default class testScreen extends React.Component{
                     [...Array(10)].map((o,n) => {
                         if(n+1==l){
                             return(
-                                <TouchableOpacity key={this.baitap} onPress={()=>this.listenForItems(n+1)} style={styles.btnCList}>
-                                    <Text style={{color:'#53ad71'}}>{n+1}</Text>
+                                <TouchableOpacity key={this.baitap} onPress={()=>null} style={styles.btnCList}>
+                                    <Text style={{color:'#1CC625'}}>{n+1}</Text>
                                 </TouchableOpacity>
                             )
                         }else{
                             return(
-                                <TouchableOpacity key={this.baitap} onPress={()=>this.listenForItems(n+1)} style={styles.btnList}>
+                                <TouchableOpacity key={this.baitap} onPress={()=>this.goto(n+1)} style={styles.btnList}>
                                     <Text style={{color:'grey'}}>{n+1}</Text>
                                 </TouchableOpacity>
                             )
@@ -210,7 +336,7 @@ export default class testScreen extends React.Component{
                 }
             </ScrollView>
         </View>
-        <View style={{flex:4,}}>
+        <View style={{flex:6,}}>
         <ScrollView style={{width:windowWidth,}} showsScrollIndicator={false}>
             <View style={styles.vw2}>   
                 <Text style={styles.txtLevel}>Câu {this.state.itemQ}</Text>
@@ -349,7 +475,7 @@ const styles = StyleSheet.create({
         
     },
     abcd:{
-        color:'#4c93f9',
+        color:'#1CC625',
         fontSize:20,
         marginRight:8,
     },
@@ -385,7 +511,7 @@ const styles = StyleSheet.create({
         height:50,
         width: 50,
         borderRadius:30,
-        borderColor:'#53ad71',
+        borderColor:'#1CC625',
         alignItems:'center',
         justifyContent:'center',
     },
@@ -405,7 +531,7 @@ const styles = StyleSheet.create({
         height:50,
         width: 50,
         borderRadius:30,
-        borderColor:'#53ad71',
+        borderColor:'#1CC625',
         alignItems:'center',
         justifyContent:'center',
     },
@@ -415,10 +541,20 @@ const styles = StyleSheet.create({
         height:50,
         width: 50,
         borderRadius:30,
-        borderColor:'#53ad71',
+        borderColor:'#1CC625',
         alignItems:'center',
         justifyContent:'center',
     },
-
+    btnNopbai:{
+        backgroundColor:'#fff',
+        borderRadius:5,
+        width: 100,
+        height:35,
+        alignItems:'center',
+        justifyContent:'center',
+        elevation:2,
+        borderWidth:1,
+        borderColor:'#1CC625'
+      },
     
   });
