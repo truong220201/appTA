@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons'; 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore"; 
 import HTMLView from 'react-native-htmlview';
+import { LazyloadScrollView, LazyloadView } from 'react-native-scroll-lazy';
 
 
 export default class Home extends React.Component{ 
@@ -26,7 +26,7 @@ export default class Home extends React.Component{
         //console.log(db);
         //const docRef = doc(db, "Quiz", "03ZnOo7bgWhJvJU9Th9G");
         //const docSnap = await getDoc(docRef);
-        const querySnapshot = await getDocs(collection(db, "QaA_Category"));
+        const querySnapshot = await getDocs(collection(db, "Category_Dang_Kien_Thuc"));
         querySnapshot.forEach((doc) => {
           //console.log(`${doc.id} => ${doc.data()}`);
           //console.log(`${doc.data().Title}`);
@@ -35,11 +35,10 @@ export default class Home extends React.Component{
             //item:this.state.item.push(data)
             //item:Object.keys(`${doc.data().Title}`)
             keys:[...this.state.keys,`${doc.id}`],
-            item:[...this.state.item,`${doc.data().name}`],
-            nameqs:[...this.state.item,`${doc.data().name_Question}`],
+            item:[...this.state.item,`${doc.data().Name}`],
+            //nameqs:[...this.state.item,`${doc.data().name_Question}`],
             leng:`${doc.id.length}`
           })
-        
         });
         //console.log('item:'+this.state.item);
         //console.log('length:'+this.state.leng);
@@ -58,12 +57,12 @@ export default class Home extends React.Component{
             <Text style={{color:'black',fontSize:20,fontWeight:'bold',}}>Giáo trình chính</Text>
         </View>
         <View style={styles.vw2}>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView  showsVerticalScrollIndicator={false}>
                 <View style={{height:80,}}></View>
                 <View style={styles.content} >
                 {
                     //Số hàng ngang
-                    [...Array(2)].map((o,n) => {
+                    [...Array(7)].map((o,n) => {
                         return(
                             /*
                             <View key={n} style={{height:windowHeight/4,padding:20,flexDirection:'row'}}>
@@ -88,12 +87,12 @@ export default class Home extends React.Component{
                             </View>
                             */
                             <View key={n} style={{height:windowHeight/4,padding:20,flexDirection:'row'}}>
-                                <TouchableOpacity key={n} onPress={()=>navigation.navigate('menuScreen',{loaiId: 1,ten:this.state.item[n],name:this.state.nameqs[n],id:this.state.keys[n],})} style={{flex:1,alignItems:'center'}}>
+                                <TouchableOpacity key={n} onPress={()=>navigation.navigate('menuScreen',{loaiId: 1,ten:this.state.item[n],id:this.state.keys[n],})} style={{flex:1,alignItems:'center'}}>
                                     <Image
                                         style={styles.circle}
                                         source={{uri:'https://www.clipartmax.com/png/middle/171-1715839_purchase-book-icon-book-icon-green-png.png'}}
                                     />
-                                    <View style={styles.vTxtLoai}>
+                                    <View style={styles.vTxtLoai} >
                                         <HTMLView value={this.state.item[n]}/>
                                     </View>
                                 </TouchableOpacity>
@@ -104,7 +103,7 @@ export default class Home extends React.Component{
                 }
                 </View>
 
-            </ScrollView>
+            </ScrollView >
         </View>
         
     </LinearGradient>
