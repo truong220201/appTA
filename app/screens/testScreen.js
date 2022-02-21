@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dimensions,TouchableOpacity,ScrollView, Text, View,Button,StyleSheet,Alert,BackHandler } from 'react-native';
+import { Dimensions,TouchableOpacity,ScrollView, Text, View,Button,StyleSheet,Alert,BackHandler,TouchableWithoutFeedback,SafeAreaView} from 'react-native';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
@@ -7,6 +7,8 @@ import { collection, getDocs } from "firebase/firestore";
 import CountDown from 'react-native-countdown-component';
 import RenderHtml from 'react-native-render-html';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { RadioButtons,SegmentedControls } from 'react-native-radio-buttons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,9 +22,16 @@ export default class testScreen extends React.Component{
         this.nvt = navigation;
         const { baitap,name,n,ten} = route.params;
         //console.log(baitap)
+        this.tagsStyles = {
+            span: {
+              color:'black',
+            },
+          };
+        
         this.i = baitap;
         this.detai= ten;
         this.num = n;
+        this.diems = 0;
         this.state = {
             hideBack:'flex',
             hideNext:'flex',
@@ -37,37 +46,62 @@ export default class testScreen extends React.Component{
             itemK:[],
             nameqs:[],
             leng:0,
+            trueAns:[],
             //test
             q:'',
             a1:'',
             a2:'',
             a3:'',
             a4:'',
-            };
+            //
+            selectedOption:'',
+            optList:[],
+            o:[],
+            ans:'',
+            answ:[0,0,0,0,0,0,0,0,0,0],
+        };
+
+        
+        this.opt = this.state.options;
       }
+     
       //Thay doi cau hoi/ tra loi
       check(inum){
-        [...Array(this.state.item.length)].map((o,n) => {
-        if(this.state.itemK[inum-1] == this.state.item[n]){
-            //console.log('ok ');
-            this.setState({
-                //item:this.state.item.push(data)
-                //item:Object.keys(`${doc.data().Title}`)
-                //itemK:[...this.state.itemK,`${doc.data().True_ans}`],
-                itemQ:inum,
-                q:this.state.nameqs[inum-1],
-                a1:this.state.opt0[inum-1],
-                a2:this.state.opt1[inum-1],
-                a3:this.state.opt2[inum-1],
-                a4:this.state.opt3[inum-1],
-                //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
-
-              })
-              console.log('check function');
-              console.log('inum:',inum);
-              console.log('lengqs: ',this.state.nameqs.length);
+        if(this.state.item.length>=inum){
+            [...Array(this.state.item.length)].map((o,n) => {
+                if(this.state.itemK[inum-1] == this.state.item[n]){
+                    //console.log('ok ',this.state.nameqs);
+                    this.setState({
+                        //item:this.state.item.push(data)
+                        //item:Object.keys(`${doc.data().Title}`)
+                        //re-render khi su dung shouldComponentUpdate
+                        itemK:[...this.state.itemK,1],
+                        //
+                        itemQ:inum,
+                        q:this.state.nameqs[inum-1],
+                        o:[this.state.opt0[n],this.state.opt1[n],this.state.opt2[n],this.state.opt3[n]],
+                        ans:this.state.trueAns[n],
+                        //answ:[...this.state.answ[inum-1]=this.state.trueAns[inum-1]],
+                        //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
+                      })
+                      //console.log('helloc');
+                      console.log('inum:',inum);
+                }
+            })
+        }else{
+            Alert.alert(
+                "Thông báo",
+                "Phần này chưa có đủ bài tập...",
+                [
+                    {
+                        text: "Ok",
+                        onPress: () => null,
+                        style: "cancel",
+                    }
+                ],
+            );
         }
-        })
+        
     };
     reset(){    
         this.setState ({
@@ -89,70 +123,139 @@ export default class testScreen extends React.Component{
         const querySnapshot = await getDocs(collection(db, "Option"));
         const querySnapshotQS = await getDocs(collection(db, "Question"));
         querySnapshotQS.forEach((doc) => {
-            //console.log(`${doc.id} => ${doc.data().id_Category}`);
-            if(this.i == `${doc.data().id_Category}`){
-                //console.log('ok');
-                this.setState({
-                    itemK:[...this.state.itemK,`${doc.id}`],
-                    nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
-                })
-                console.log('length item k: ',this.state.itemK.length);
-            }
+            //console.log(`name qs : ${doc.data().Id_cate_mtct}`);
+            //console.log('i: ',this.i.length);
+            [...Array(this.i.length)].map((o,n) => {
+                if(this.i[n] == `${doc.data().Id_cate_mtct}`){
+                    //console.log('ok');
+                    this.setState({
+                        itemK:[...this.state.itemK,`${doc.id}`],
+                        nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
+                    })
+                    //console.log('length item k: ',this.state.itemK.length);
+                }
+            })
         }),
-        
+
         querySnapshot.forEach((doc) => {
           //console.log(`${doc.id} => ${doc.data().id_Question}`);
-          //console.log(`${doc.data().Option_ans[0]}`);
+          //console.log('data:',`${doc.data().True_ans}`);
           //console.log(`length: ${doc.id.length}`);
-          
          //console.log(this.i);
-         console.log(this.state.item.length)
+         //show length
+         //console.log(this.state.item.length);
          //console.log(this.state.itemK);
+         [...Array(this.state.itemK.length)].map((o,n) => {
+            if(this.state.itemK[n] == `${doc.data().id_Question}`){
+               //console.log('ok:',this.state.opt0);
+                this.setState({
+                    //item:this.state.item.push(data)
+                    //item:Object.keys(`${doc.data().Title}`)
+                    item:[...this.state.item,`${doc.data().id_Question}`],
+                    //nameqs:[...this.state.nameqs,1],
+                    opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
+                    opt1:[...this.state.opt1,`${doc.data().Option_ans[1]}`],
+                    opt2:[...this.state.opt2,`${doc.data().Option_ans[2]}`],
+                    opt3:[...this.state.opt3,`${doc.data().Option_ans[3]}`],
+                    trueAns:[...this.state.trueAns,`${doc.data().True_ans}`],
+                });
+                //console.log('length item k: ',this.state.itemK.length);
+            }
+        })
          
-         this.setState({
-            //item:this.state.item.push(data)
-            //item:Object.keys(`${doc.data().Title}`)
-            item:[...this.state.item,`${doc.data().id_Question}`],
-            nameqs:[...this.state.nameqs,1],
-            opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
-            opt1:[...this.state.opt1,`${doc.data().Option_ans[1]}`],
-            opt2:[...this.state.opt2,`${doc.data().Option_ans[2]}`],
-            opt3:[...this.state.opt3,`${doc.data().Option_ans[3]}`],
-        });
         //console.log(`${doc.data().id_Question}`);
         //console.log(this.state.itemK[this.num])
-        //console.log('stop');
+        //console.log('state itemk:' ,this.state.itemK);
+        //console.log('state item:' ,this.state.item.length-1);
 
         //Dat gia tri cho phan tu thu nhat
-        if(this.state.itemK[0] == this.state.item[this.state.item.length-1]){
-            //console.log('ok ');
+        if(this.state.itemK[inum-1] == this.state.item[this.state.item.length-1]){
+            //console.log('ok ',this.state.nameqs);
             this.setState({
                 //item:this.state.item.push(data)
                 //item:Object.keys(`${doc.data().Title}`)
-
                 //re-render khi su dung shouldComponentUpdate
                 itemK:[...this.state.itemK,1],
-
                 //
                 itemQ:inum,
                 q:this.state.nameqs[inum-1],
-                a1:this.state.opt0[inum-1],
-                a2:this.state.opt1[inum-1],
-                a3:this.state.opt2[inum-1],
-                a4:this.state.opt3[inum-1],
-                
+                o:[this.state.opt0[this.state.item.length-1],this.state.opt1[this.state.item.length-1],this.state.opt2[this.state.item.length-1],this.state.opt3[this.state.item.length-1]],
+                ans:this.state.trueAns[this.state.item.length-1],
+                //answ:[...this.state.answ[inum-1]=this.state.trueAns[inum-1]],
                 //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
               })
-              console.log('helloc');
+              //console.log('helloc');
               console.log('inum:',inum);
-              //console.log(this.state.a1);
-
         }
 
         }); 
         //console.log('item:'+this.state.item);
         //console.log('length:'+this.state.leng);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    setSelectedOption(selectedOption){
+        this.setState({
+            optList:[...this.state.optList,selectedOption],
+            //answ:[...this.state.answ[this.state.itemQ-1]=this.state.trueAns[this.state.itemQ-1]],
+            
+            selectedOption,
+        });
+        this.state.answ[this.state.itemQ-1] = selectedOption;
+        //console.log(this.state.answ);
+    }
+    
+
+    renderContainer(optionNodes){
+        return <View>{optionNodes}</View>;
+    }
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     goto(g){
         this.check(g);
         this.listenForItems(g);
@@ -186,7 +289,7 @@ export default class testScreen extends React.Component{
     qsExit = () =>
         Alert.alert(
             "Nhắc nhở",
-            "Bạn có muốn thoát?",
+            "Bạn muốn hủy bài kiểm tra?",
             [
                 {
                     text: "Không",
@@ -219,6 +322,44 @@ export default class testScreen extends React.Component{
         ]);
         return true;
     };
+
+
+
+
+
+
+
+
+
+
+
+
+    dvt(){
+        for(var n=0;n<this.state.item.length;n++){
+            for(var m=0;m<this.state.item.length;m++){
+                if(this.state.answ[n]==this.state.trueAns[m]){
+                    this.diems++;
+                }else{
+                    //console.log('hihi')
+                }
+            }
+        }
+                
+    }
+
+
+    nopbai(){
+        console.log("nop bai");
+        this.dvt();
+        console.log('diem: ',this.diems);
+        //console.log("da lam: ",this.state.answ);
+        this.nvt.navigate('kq',{diem:this.diems,item:this.state.item,itemK:this.state.itemK,ds:this.state.o,bailam:this.state.answ,cauhoi:this.state.nameqs,d0:this.state.opt0,d1:this.state.opt1,d2:this.state.opt2,d3:this.state.opt3,dapan:this.state.trueAns});
+    };
+
+
+
+
+
 
 
 
@@ -261,6 +402,31 @@ export default class testScreen extends React.Component{
         this.backHandler.remove();
     }
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
   render(){
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
@@ -268,12 +434,13 @@ export default class testScreen extends React.Component{
     const { baitap,name} = route.params;
     const i = baitap;
     var l = this.state.itemQ;
+    
     const question = {html: this.state.q,};
-    const da1 = {html: this.state.a1,};
-    const da2 = {html: this.state.a2,};
-    const da3 = {html: this.state.a3,};
-    const da4 = {html: this.state.a4,};
-    console.log(l);
+    //console.log(this.tagsStyles);
+    //console.log(this.state.o);
+    console.log('render');
+    
+
 
     if(l==1){
         this.state.hideBack='none';
@@ -286,7 +453,7 @@ export default class testScreen extends React.Component{
     return (
         
         
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
         <View style={styles.vw1}>
 
             <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
@@ -296,11 +463,11 @@ export default class testScreen extends React.Component{
                 <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',flex:1,}}>
                     <CountDown
                         size={17}
-                        until={45*60} 
-                        onFinish={() => alert('Hết giờ!')}
+                        until={15*60} 
+                        onFinish={()=>this.nopbai()}
                         digitStyle={{backgroundColor: '#FFF',}}
                         digitTxtStyle={{color: '#53ad71'}}
-                        timeLabelStyle={{color: 'red'}}
+                        timeLabelStyle={{color: 'red',fontWeight:'300'}}
                         separatorStyle={{color: '#53ad71'}}
                         timeToShow={['M', 'S']}
                         timeLabels={{m: null, s: null}}
@@ -309,8 +476,8 @@ export default class testScreen extends React.Component{
                     <Icon name = {'alarm'} size={20} color={'#1CC625'} style={{margin:5,}} />
                 </View>
                 <View style={{flex:1,justifyContent:'flex-end',flexDirection:'row',paddingRight:5,}}>
-                    <TouchableOpacity style={styles.btnNopbai}>
-                        <Text style={{color:'#1CC625',fontSize:15,}}>Nộp bài</Text>
+                    <TouchableOpacity onPress={()=>this.nopbai()} style={styles.btnNopbai}>
+                        <Text style={{color:'#fff',fontSize:15,}}>Nộp bài</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -321,13 +488,13 @@ export default class testScreen extends React.Component{
                         if(n+1==l){
                             return(
                                 <TouchableOpacity key={this.baitap} onPress={()=>null} style={styles.btnCList}>
-                                    <Text style={{color:'#1CC625'}}>{n+1}</Text>
+                                    <Text style={{color:'#fff',fontSize:15,}}>{n+1}</Text>
                                 </TouchableOpacity>
                             )
                         }else{
                             return(
                                 <TouchableOpacity key={this.baitap} onPress={()=>this.goto(n+1)} style={styles.btnList}>
-                                    <Text style={{color:'grey'}}>{n+1}</Text>
+                                    <Text style={{color:'#b9b9b9',fontSize:15,}}>{n+1}</Text>
                                 </TouchableOpacity>
                             )
                         }
@@ -340,37 +507,76 @@ export default class testScreen extends React.Component{
         <ScrollView style={{width:windowWidth,}} showsScrollIndicator={false}>
             <View style={styles.vw2}>   
                 <Text style={styles.txtLevel}>Câu {this.state.itemQ}</Text>
-                <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={question} />
+                <RenderHtml enableExperimentalMarginCollapsing = { true } tagsStyles={this.tagsStyles} contentWidth={windowWidth} source={question} />
             </View>
-            <View style={styles.vw3}>
-                <TouchableOpacity  style={styles.contentView}>
-                    <Text style={styles.abcd}>A.</Text>
-                    <View style={{top:5,}}>
-                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={da1} />
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.contentView}>
-                    <Text style={styles.abcd}>B.</Text>
-                    <View style={{top:5,}}>
-                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={da2} />
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.contentView}>
-                    <Text style={styles.abcd}>C.</Text>
-                    <View style={{top:5,}}>
-                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={da3} />
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.contentView}>
-                    <Text style={styles.abcd}>D.</Text>
-                    <View style={{top:5,}}>
-                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={da4} />
-                    </View>
-                </TouchableOpacity>
+           
+            <View style={{marginLeft: 20,marginRight:20,}}>
+            <RadioButtons
+                options={ this.state.o }
+                onSelection={ this.setSelectedOption.bind(this) }
+                selectedOption={this.state.selectedOption }
+                renderOption={ 
+                    (option, selected, onSelect, index)=>{
+                        /*const s = selected ? { borderWidth:2,
+                                                borderColor:'#1CC625',
+                                                borderRadius:7,
+                                                padding:15,
+                                                flexDirection:'row',
+                                                marginBottom:'6%',} : { borderWidth:2,
+                                                    borderColor:'#f0f0f0',
+                                                    borderRadius:7,
+                                                    padding:15,
+                                                    flexDirection:'row',
+                                                    marginBottom:'6%',};
+                                                    */
+                        const windowWidth = Dimensions.get('window').width;
+                        //console.log("num: ",this.state.itemQ);
+                        //console.log("num: ",this.state.answ[this.state.itemQ-1]);
+                        if(option==this.state.answ[this.state.itemQ-1]){
+                            return (
+                                <LinearGradient  start={{x: 0, y: 0.75}} end={{x: 1, y: 0.25}} colors={[ '#6bdb91' , '#6bdb91' , '#6bdb91' , '#b9f5dc']}  style={{borderWidth:0,
+                                                                                                                    borderColor:'#1CC625',
+                                                                                                                    borderRadius:10,
+                                                                                                                    padding:15,
+                                                                                                                    marginBottom:'6%',
+                                                                                                                    elevation:1,}} >
+                                    <TouchableOpacity onPress={onSelect} style={{flexDirection:'row',}} key={index}>
+                                        <Text style={styles.abcd}></Text>
+                                        <View style={{top:5,}}>
+                                            <RenderHtml enableExperimentalMarginCollapsing = { true }  tagsStyles={{span:{color:'#fff',backgroundColor:'#ffffff00'}}} contentWidth={windowWidth} source={{html:option}} style={{color:'orange'}} />
+                                        </View>
+                                    </TouchableOpacity>
+                                </LinearGradient>
+                            );
+                        }else{
+                            return (
+                                <TouchableOpacity onPress={onSelect} key={index} style={{//borderWidth:1,
+                                                                                        //borderColor:'#b9b9b9',
+                                                                                        elevation:5,
+                                                                                        backgroundColor:'white',
+                                                                                        borderRadius:10,
+                                                                                        padding:15,
+                                                                                        flexDirection:'row',
+                                                                                        marginBottom:'6%',}}>
+                                    <Text style={styles.abcd}></Text>
+                                    <View style={{top:5,}}>
+                                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={{html:option}} />
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        }
+                        
+                        }
+                 }
+                index={9}
+                renderContainer={ this.renderContainer }
+            />
+            
+
+
             </View>
             <View style={styles.vw4}>
-                <TouchableOpacity  onPress={()=>this.goBack(this.state.itemQ-1)} style={{
-                                                                                        display:this.state.hideBack,
+                <TouchableOpacity  onPress={()=>this.goBack(this.state.itemQ-1)} style={{display:this.state.hideBack,
                                                                                         flexDirection:'row',
                                                                                         height:'58%',
                                                                                         alignItems:'center',
@@ -382,8 +588,7 @@ export default class testScreen extends React.Component{
                     </View>
                     <Text style={styles.txtNext}>Câu trước đó</Text>
                 </TouchableOpacity>
-                <TouchableOpacity  onPress={()=>this.goNext(this.state.itemQ+1)} style={{
-                                                                                        display:this.state.hideNext,
+                <TouchableOpacity  onPress={()=>this.goNext(this.state.itemQ+1)} style={{display:this.state.hideNext,
                                                                                         flexDirection:'row',
                                                                                         height:'58%',
                                                                                         alignItems:'center',
@@ -400,7 +605,7 @@ export default class testScreen extends React.Component{
             </View>
         </ScrollView>
         </View>
-    </View>
+    </SafeAreaView>
 )
 }
 
@@ -440,7 +645,7 @@ const styles = StyleSheet.create({
     vw2:{
         width:'100%',
         flex:2,
-        padding:10,
+        padding:20,
         justifyContent:'center',
     },
     vw3:{
@@ -468,7 +673,7 @@ const styles = StyleSheet.create({
     txtLevel:{
         color:'#858585',
         fontSize:20,
-        marginBottom:'5%',
+        //marginBottom:'2%',
         flexDirection:'row',
     },
     txtQuestion:{
@@ -506,22 +711,23 @@ const styles = StyleSheet.create({
         fontSize:18,
     },
     btnCList:{
-        borderWidth:2,
+        borderWidth:0,
         margin:5,
         height:50,
         width: 50,
         borderRadius:30,
-        borderColor:'#1CC625',
+        //borderColor:'#1CC625',
+        backgroundColor:'#63cc7b',
         alignItems:'center',
         justifyContent:'center',
     },
     btnList:{
-        borderWidth:2,
+        borderWidth:1,
         margin:5,
         height:50,
         width: 50,
         borderRadius:30,
-        borderColor:'grey',
+        borderColor:'#b9b9b9',
         alignItems:'center',
         justifyContent:'center',
     },
@@ -553,8 +759,8 @@ const styles = StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         elevation:2,
-        borderWidth:1,
-        borderColor:'#1CC625'
+        //borderWidth:1,
+        backgroundColor:'#63cc7b'
       },
     
   });
