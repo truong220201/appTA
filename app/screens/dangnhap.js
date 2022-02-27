@@ -8,16 +8,72 @@ import{
     TextInput,
     Dimensions,
     TouchableOpacity,
-    Pressable
+    Pressable,
+    Alert
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import COLORS from './color';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const {width:WIDTH} =Dimensions.get('window')
+import { getAuth, signInWithEmailAndPassword,createUserWithEmailAndPassword } from "firebase/auth";
+import { firebaseApp } from '../../components/firebaseConfig';
 
-const LoginScreen =({navigation})=>{
-    
+const {width:WIDTH} =Dimensions.get('window');
+
+export default class LoginScreen extends React.Component{
+    constructor(props) {
+        super(props);
+        //this.itemRef = getDatabase(firebaseApp);
+        //console.log(this.itemRef);
+        const { route,navigation } = this.props;
+        this.nvt = navigation;
+    }
+    state = { email: '', password: '', errorMessage: null,uid:''}
+    dangnhap = () =>{
+       
+        this.nvt.navigate('btab',{uid:this.state.uid,email:this.state.email});
+
+    }
+    handleLogin = () => {
+        // TODO: Firebase stuff...
+        console.log('handleSignUp')
+        const auth = getAuth(firebaseApp);
+        //console.log('uid: ',auth.currentUser.uid);
+            signInWithEmailAndPassword(auth, this.state.email, this.state.password)
+
+          .then((userCredential) => {
+            this.setState({
+                uid:auth.currentUser.uid
+            });
+            //console.log(this.state.uid)
+            Alert.alert(
+              "Alert Title",
+              "Dang nhap thanh cong",
+              [
+                { text: "OK", onPress: () => this.dangnhap() }
+              ]
+            );
+          })
+          .catch((error) => {
+            Alert.alert(
+              "Alert Title",
+              "Tai khoan hoac mat khau khong chinh xac",
+              [
+                {
+                  text: "Cancel",
+                  onPress: () => console.log("Cancel Pressed"),
+                  style: "cancel"
+                },
+                { text: "OK", onPress: () => console.log("OK Pressed") }
+              ]
+            );
+          });
+        
+        
+     }
+   
+    render(){
+        const { navigation } = this.props;
     return(
         <LinearGradient  colors={[ '#6bdb91' , '#6bdb91' , '#73e9bb' , '#b9f5dc']} style={styles.backgroundContainer}>
             <View style={{flex:1,justifyContent:'center'}}>
@@ -27,9 +83,10 @@ const LoginScreen =({navigation})=>{
                 <View style={styles.inputContainer}>
                     <Icon name={'person'} size={28} color={'#fff'} style={styles.inputIcon}/>
                     <TextInput style={styles.input}
-                    placeholder={'Username'}
+                    placeholder={'Email'}
                     placeholderTextColor={'#7a7a7a'}
                     underlineColorAndroid='transparent'
+                    onChangeText={email => this.setState({ email })}
                     />
                 </View>
                 <View style={styles.inputContainer}>
@@ -39,6 +96,7 @@ const LoginScreen =({navigation})=>{
                     secureTextEntry={true}
                     placeholderTextColor={'#7a7a7a'}
                     underlineColorAndroid='transparent'
+                    onChangeText={password => this.setState({ password })}
                     />
                     <TouchableOpacity style={styles.btnEye}>
                         <Icon name='eye-outline'size={26} color={'rgba(0,0,0,0.8)'}  />
@@ -50,7 +108,7 @@ const LoginScreen =({navigation})=>{
             </View>
 
             <View style={{justifyContent:'flex-end',flex:1,padding:10}}>
-                <TouchableOpacity style={styles.btnLogin} onPress={()=>navigation.navigate('btab')}>
+                <TouchableOpacity style={styles.btnLogin} onPress={this.handleLogin}>
                      <Text style={styles.text}>Đăng nhập</Text>
                 </TouchableOpacity>
             </View>
@@ -58,6 +116,7 @@ const LoginScreen =({navigation})=>{
         </LinearGradient>
         
     );
+    }
     
 };
 
@@ -126,5 +185,3 @@ const styles = StyleSheet.create({
         fontWeight:'bold',
     },
 });
-
-export default LoginScreen;
