@@ -12,3 +12,10 @@ and https://github.com/truong220201/appTA/blob/main/app/screens/listbt.js
 - Add registration form at: https://github.com/truong220201/appTA/blob/main/app/screens/dangki.js
 - Add a form to review your work at: https://github.com/truong220201/appTA/blob/main/app/screens/xemlaibaitest.js
 - And a few more details...
+
+Version:1.1 (02/28/2022)
+
+- Additional features for login and registration form at https://github.com/truong220201/appTA/blob/main/app/screens/dangnhap.js
+and https://github.com/truong220201/appTA/blob/main/app/screens/dangki.js
+- Add some new features (coming soon)
+- And a few more details...
