@@ -26,3 +26,5 @@ Verson:1.2 (03/03/2022)
 - Add loading
 - Export data to firestore
 - Edit some other small details
+- Add user info form
+- Add logout
