@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dimensions,TouchableOpacity,ScrollView, Text, View,Button,StyleSheet,Alert,BackHandler,TouchableWithoutFeedback,SafeAreaView} from 'react-native';
+import { Dimensions,TouchableOpacity,ScrollView, Text, View,Button,StyleSheet,Alert,BackHandler,ActivityIndicator,SafeAreaView} from 'react-native';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
@@ -9,6 +9,7 @@ import RenderHtml from 'react-native-render-html';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RadioButtons,SegmentedControls } from 'react-native-radio-buttons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { doc, setDoc } from "firebase/firestore"; 
 
 const Stack = createNativeStackNavigator();
 
@@ -20,19 +21,22 @@ export default class testScreen extends React.Component{
         //console.log(this.itemRef);
         const { route,navigation } = this.props;
         this.nvt = navigation;
-        const { baitap,name,n,ten} = route.params;
-        //console.log(baitap)
+        const { baitap,name,n,ten,uid,email} = route.params;
+        console.log('baitap:',baitap);
+        console.log('uid form test:',uid)
         this.tagsStyles = {
             span: {
               color:'black',
             },
           };
-        
+        this.uid=uid;
+        this.email=email;
         this.i = baitap;
         this.detai= ten;
         this.num = n;
         this.diems = 0;
         this.state = {
+            isLoading:true,
             hideBack:'flex',
             hideNext:'flex',
             timer:500,
@@ -114,6 +118,41 @@ export default class testScreen extends React.Component{
             nameqs:[],
             });
     };
+
+
+    async setUser(email,diem,uid){
+        const db = getFirestore(firebaseApp);
+        console.log('uiddddddd:',uid)
+        await setDoc(doc(db, "User",uid), {
+            Email: email,
+            Diem:diem,
+            Uid: uid,
+        });
+    }
+
+
+    async getUser(uid){
+        const db = getFirestore(firebaseApp);
+        const querySnapshotUser = await getDocs(collection(db, "User"));
+
+        querySnapshotUser.forEach((doc) => {
+            //console.log(`name qs : ${doc.data().Id_cate_mtct}`);
+            console.log('uida:',uid)
+            console.log('user: ',`${doc.data().Uid}`);
+            if(`${doc.data().Uid}`==uid){
+                this.diems=this.diems+`${doc.data().Score}`;
+                this.setUser(this.email,this.diems,uid)
+            }else{
+                this.setUser(this.email,this.diems,uid)
+            }
+        })
+    }
+
+    
+
+    
+
+
       async listenForItems(inum){
         
         const db = getFirestore(firebaseApp);
@@ -127,7 +166,7 @@ export default class testScreen extends React.Component{
             //console.log('i: ',this.i.length);
             [...Array(this.i.length)].map((o,n) => {
                 if(this.i[n] == `${doc.data().Id_cate_mtct}`){
-                    //console.log('ok');
+                    console.log('ok');
                     this.setState({
                         itemK:[...this.state.itemK,`${doc.id}`],
                         nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
@@ -158,6 +197,7 @@ export default class testScreen extends React.Component{
                     opt2:[...this.state.opt2,`${doc.data().Option_ans[2]}`],
                     opt3:[...this.state.opt3,`${doc.data().Option_ans[3]}`],
                     trueAns:[...this.state.trueAns,`${doc.data().True_ans}`],
+                    isLoading:false,
                 });
                 //console.log('length item k: ',this.state.itemK.length);
             }
@@ -348,12 +388,48 @@ export default class testScreen extends React.Component{
     }
 
 
+
+    luudiem(){
+        this.getUser()
+        console.log(this.uid)
+    }
+
+
+
+
     nopbai(){
-        console.log("nop bai");
-        this.dvt();
-        console.log('diem: ',this.diems);
-        //console.log("da lam: ",this.state.answ);
-        this.nvt.navigate('kq',{diem:this.diems,item:this.state.item,itemK:this.state.itemK,ds:this.state.o,bailam:this.state.answ,cauhoi:this.state.nameqs,d0:this.state.opt0,d1:this.state.opt1,d2:this.state.opt2,d3:this.state.opt3,dapan:this.state.trueAns});
+        Alert.alert(
+            "Nhắc nhở",
+            "Bạn muốn nộp bài?",
+            [
+                {
+                    text: "Không",
+                    onPress: () => null,
+                    style: "cancel",
+                },
+                {
+                    text: "Có",
+                    onPress: ()=>{
+                        this.getUser(this.uid);
+                            console.log("nop bai");
+                            this.dvt();
+                            //console.log('diem: ',this.diems);
+                            //console.log("da lam: ",this.state.answ);
+                            this.nvt.navigate('kq',{diem:this.diems,item:this.state.item,itemK:this.state.itemK,ds:this.state.o,bailam:this.state.answ,cauhoi:this.state.nameqs,d0:this.state.opt0,d1:this.state.opt1,d2:this.state.opt2,d3:this.state.opt3,dapan:this.state.trueAns});
+                    },
+                    style: "cancel",
+                },
+            ],
+            {
+            cancelable: true,
+            onDismiss: () =>
+                Alert.alert(
+                "This alert was dismissed by tapping outside of the alert dialog."
+                ),
+            }
+        );
+        console.log(this.uid)
+        
     };
 
 
@@ -456,7 +532,7 @@ export default class testScreen extends React.Component{
     <SafeAreaView style={styles.container}>
         <View style={styles.vw1}>
 
-            <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+            <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',margin:10,}}>
                 <TouchableOpacity style={{marginLeft:10,flex:1,justifyContent:'flex-start',flexDirection:'row'}} onPress={()=>this.qsExit()}>
                     <Icon name = {'arrow-back-ios'} size={20} color={'black'} style={{margin:5,}} />
                 </TouchableOpacity>
@@ -503,7 +579,8 @@ export default class testScreen extends React.Component{
                 }
             </ScrollView>
         </View>
-        <View style={{flex:6,}}>
+        <View style={{flex:5,}}>
+        {this.state.isLoading ? <ActivityIndicator style={styles.vw2} size="large" color="#00ff00" />:(
         <ScrollView style={{width:windowWidth,}} showsScrollIndicator={false}>
             <View style={styles.vw2}>   
                 <Text style={styles.txtLevel}>Câu {this.state.itemQ}</Text>
@@ -604,7 +681,9 @@ export default class testScreen extends React.Component{
                 
             </View>
         </ScrollView>
+        )}
         </View>
+        
     </SafeAreaView>
 )
 }
