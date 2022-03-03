@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
-import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground } from 'react-native';
+import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground,ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore"; 
 import HTMLView from 'react-native-htmlview';
-import CheckBox from 'react-native-checkbox';
+import { CheckBox} from 'react-native-elements';
 
 
 export default class listbt extends React.Component{ 
     constructor(props) {
         super(props);
         const { route,navigation } = this.props;
-        const {listt} = route.params;
+        this.nvt = navigation;
+        const {listt,uid,email} = route.params;
+        this.uid=uid;
+        this.email=email;
         console.log("tesst id list",listt)
         //this.itemRef = getDatabase(firebaseApp);
         //console.log(this.itemRef);
@@ -26,6 +29,9 @@ export default class listbt extends React.Component{
             nameqs:[],
             leng:0,
             borderColorC:[],
+            isLoading:true,
+            check:[],
+            chontca:false,
             };
       }
       async listenForItems(itemRef){
@@ -48,6 +54,7 @@ export default class listbt extends React.Component{
                 //nameqs:[...this.state.item,`${doc.data().name_Question}`],
                 leng:`${doc.id.length}`,
                 borderColorC:[...this.state.borderColorC,"#ffffff00"],
+                isLoading:false
               })
         }})
          
@@ -56,25 +63,65 @@ export default class listbt extends React.Component{
         //console.log('length:'+this.state.leng);
     }
     nopbai(n,a){
-        console.log("Running");
+        var arr = [...this.state.check];
+        arr[a] = !this.state.check[a]
+        this.setState({check:arr})
+        console.log("Running, a = ",a);
         if(this.state.savet[a]==0){
             this.state.savet[a]=n;
-            this.state.borderColorC[a]='green';
         }
         else{
+            this.state.chontca=false
             this.state.savet[a]=0;
-            this.state.borderColorC[a]='#ffffff00';
         }
-        //console.log('savet: ',this.state.savet);
-        console.log('color: ',this.state.borderColorC);
+        console.log('savet: ',this.state.savet);
+        //console.log('check: ',this.state.check);
+        //console.log('color: ',this.state.borderColorC);
     };
     chontc(cd){
-        [...Array(cd)].map((o,n) => {
-            this.state.savet[n]=this.state.keys[n];
-            this.state.borderColorC[n]='green';
-            
-        })
+        var arr = [...this.state.check];
+        if(this.state.chontca == false){
+            [...Array(cd)].map((o,n) => {
+                arr[n] = true;
+                this.state.savet[n]=this.state.keys[n];
+                
+            })
+        }else{
+            [...Array(cd)].map((o,n) => {
+                arr[n] = false;
+                this.state.savet[n]=0;
+                
+            })
+        }
+        this.setState({check:arr})
+        this.state.chontca = !this.state.chontca;
         console.log('savet: ',this.state.savet);
+    }
+    btntieptuc(svet,cd){
+        console.log('svet:',svet)
+        let dem = 0;
+        [...Array(cd)].map((o,n) => {
+            if(this.state.check[n] !== false){
+                dem++;
+            }
+        })
+        if(dem==0){
+            Alert.alert(
+                "Nhắc nhở",
+                "Bạn chưa chọn mục nào.",
+                [
+                    {
+                        text: "Được",
+                        onPress: () => null,
+                        style: "cancel",
+                    },
+                
+                ],
+            );
+        }else{
+            this.nvt.navigate('menuScreen',{id:this.state.savet,ten:this.state.item,uid:this.uid,email:this.email})
+        }
+        
     }
   render(){
     const windowWidth = Dimensions.get('window').width;
@@ -88,9 +135,8 @@ export default class listbt extends React.Component{
     return (
     <LinearGradient colors={[ '#aef6d6' , '#aef6d6' , '#aef6d6' , '#fff']} style={styles.container}>
         <View style = {styles.vw1}>
-            <Icon name='list' style={{marginRight:10,}}/>
-<Text style={{color:'black',fontSize:20,fontWeight:'bold',}}>chi tiết </Text>
         </View>
+        {this.state.isLoading ? <ActivityIndicator style={styles.vw2} size="large" color="#00ff00" />:(
         <View style={styles.vw2}>
             <ScrollView  showsVerticalScrollIndicator={false}>
                 <View style={{height:80,}}></View>
@@ -122,12 +168,12 @@ export default class listbt extends React.Component{
                             </View>
                             */
                             <View key={n}>
-                                <TouchableOpacity  style={styles.btnInfo} key={n} onPress={()=>this.nopbai(this.state.keys[n],n)} >
-                               
-                                    <View style={{height:'100%',flex:4,justifyContent:'center'}}>
-                                        <HTMLView value={this.state.item[n]}/>
-                                    </View>
-                                  </TouchableOpacity>      
+                                
+                                  <CheckBox
+                                        title={<HTMLView value={this.state.item[n]}/>}
+                                        checked={this.state.check[n]}
+                                        onPress={() => this.nopbai(this.state.keys[n],n)}
+                                    />      
                                                                                                              
                             </View>
                         )
@@ -137,19 +183,13 @@ export default class listbt extends React.Component{
                 
                 </View>
                 <View >
-                    <TouchableOpacity style={{width:'95%',
-                                            height:80,
-                                            borderRadius:20,
-                                            margin: 10,
-                                            borderWidth:2,
-                                            borderColor:colorsB[0],
-                                            backgroundColor:'#fff',
-                                            elevation:1,
-                                            flexDirection:'row',}} onPress={()=>this.chontc(chieudai)} >
-                        <View style={{height:'100%',flex:4,justifyContent:'center'}}>
-                            <Text>Chọn tất cả</Text>
-                        </View>
-                    </TouchableOpacity>      
+                <View >
+                    <CheckBox
+                        title='Chọn tất cả'
+                        checked={this.state.chontca}
+                        onPress={() => this.chontc(chieudai)}
+                    />      
+                </View>      
                 </View>
                 <LinearGradient  start={{x: 0, y: 0.75}} end={{x: 1, y: 0.25}} colors={[ '#6bdb91' , '#6bdb91' , '#6bdb91' , '#b9f5dc']}  style={{borderWidth:0,
                                                                                                                     height:50,
@@ -159,7 +199,7 @@ export default class listbt extends React.Component{
                                                                                                                     borderRadius:10,
                                                                                                                     marginBottom:'6%',
                                                                                                                     elevation:1,}} >
-                <TouchableOpacity onPress={()=>navigation.navigate('menuScreen',{id:this.state.savet,ten:this.state.item})} style={{alignItems:'center',}}>
+                <TouchableOpacity onPress={()=>this.btntieptuc(this.state.savet,this.uid)} style={{alignItems:'center',}}>
                     <View style={{height:'100%',justifyContent:'center'}}>
                         <Text style={{fontSize:20,color:'#fff'}}>Tiếp tục</Text>
                     </View>
@@ -167,6 +207,7 @@ export default class listbt extends React.Component{
                 </LinearGradient>
             </ScrollView >      
         </View>
+        )}
        
     </LinearGradient>
 )
@@ -198,7 +239,6 @@ const styles = StyleSheet.create({
         width:'100%',
     },
     content:{
-        alignItems:'center',
         justifyContent:'center'
     },
     square:{
