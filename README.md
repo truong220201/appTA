@@ -19,3 +19,10 @@ Version:1.1 (02/28/2022)
 and https://github.com/truong220201/appTA/blob/main/app/screens/dangki.js
 - Add some new features (coming soon)
 - And a few more details...
+
+Verson:1.2 (03/03/2022)
+
+- Update checkbox
+- Add loading
+- Export data to firestore
+- Edit some other small details
