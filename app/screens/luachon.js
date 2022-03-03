@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground,Alert } from 'react-native';
+import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground,Alert,ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore"; 
 import HTMLView from 'react-native-htmlview';
-import CheckBox from 'react-native-checkbox';
+import { CheckBox} from 'react-native-elements';
 
 
 export default class luachon extends React.Component{ 
@@ -14,18 +14,23 @@ export default class luachon extends React.Component{
         super(props);
         const { route,navigation } = this.props;
         this.nvt = navigation;
-        const {id} = route.params;
+        const {id,uid,email} = route.params;
+        this.uid=uid;
+        this.email=email;
         console.log("tesst id",id);
         //this.itemRef = getDatabase(firebaseApp);
         //console.log(this.itemRef);
         this.thing = id;
         this.state = {
+            isLoading:true,
             borderColorC:[],
             savet:[],
             keys:[],
             item:[],
             nameqs:[],
             leng:0,
+            check:[],
+            chontca:false,
             };
       }
       async listenForItems(itemRef){
@@ -48,6 +53,8 @@ export default class luachon extends React.Component{
                 leng:`${doc.id.length}`,
                 savet:[...this.state.savet,0],
                 borderColorC:[...this.state.borderColorC,"#ffffff00"],
+                isLoading:false,
+                check:[...this.state.check,false]
               })
         }
          
@@ -56,31 +63,46 @@ export default class luachon extends React.Component{
         //console.log('length:'+this.state.leng);
     }
     nopbaia(n,a){
-        console.log("Running");
+
+        var arr = [...this.state.check];
+        arr[a] = !this.state.check[a]
+        this.setState({check:arr})
+        console.log("Running, a = ",a);
         if(this.state.savet[a]==0){
             this.state.savet[a]=n;
-            this.state.borderColorC[a]='green';
         }
         else{
+            this.state.chontca=false
             this.state.savet[a]=0;
-            this.state.borderColorC[a]='#ffffff00';
         }
-        //console.log('savet: ',this.state.savet);
-        console.log('color: ',this.state.borderColorC);
+        console.log('savet: ',this.state.savet);
+        //console.log('check: ',this.state.check);
+        //console.log('color: ',this.state.borderColorC);
     };
     chontc(cd){
-        [...Array(cd)].map((o,n) => {
-            this.state.savet[n]=this.state.keys[n];
-            this.state.borderColorC[n]='green';
-            
-        })
+        var arr = [...this.state.check];
+        if(this.state.chontca == false){
+            [...Array(cd)].map((o,n) => {
+                arr[n] = true;
+                this.state.savet[n]=this.state.keys[n];
+                
+            })
+        }else{
+            [...Array(cd)].map((o,n) => {
+                arr[n] = false;
+                this.state.savet[n]=0;
+                
+            })
+        }
+        this.setState({check:arr})
+        this.state.chontca = !this.state.chontca;
         console.log('savet: ',this.state.savet);
     }
     btntieptuc(svet,cd){
         console.log('svet:',svet)
         let dem = 0;
         [...Array(cd)].map((o,n) => {
-            if(this.state.borderColorC[n] !== '#ffffff00'){
+            if(this.state.check[n] !== false){
                 dem++;
             }
         })
@@ -98,7 +120,7 @@ export default class luachon extends React.Component{
                 ],
             );
         }else{
-            this.nvt.navigate('listbt',{listt:svet})
+            this.nvt.navigate('listbt',{listt:svet,uid:this.uid,email:this.email})
         }
         
     }
@@ -106,6 +128,7 @@ export default class luachon extends React.Component{
 
         this.listenForItems();
     }
+    
   render(){
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
@@ -116,12 +139,13 @@ export default class luachon extends React.Component{
     const colorsB = this.state.borderColorC;
     //console.log('chieu dai : ',chieudai);
     //console.log('color: ',colorsB)
+    
     return (
     <LinearGradient colors={[ '#aef6d6' , '#aef6d6' , '#aef6d6' , '#fff']} style={styles.container}>
         <View style = {styles.vw1}>
-            <Icon name='watch' style={{marginRight:10,}}/>
-            <Text style={{color:'black',fontSize:20,fontWeight:'bold',}}>Kiến thức cần thiết cho bạn</Text>
+            
         </View>
+        {this.state.isLoading ? <ActivityIndicator style={styles.vw2} size="large" color="#00ff00" />:(
         <View style={styles.vw2}>
         <ScrollView style={{}} showsVerticalScrollIndicator={false}>
                 <View style={{height:80,}}></View>
@@ -131,38 +155,22 @@ export default class luachon extends React.Component{
                     [...Array(chieudai)].map((o,n) => {
                             return(
                                 <View key={n}>
-                                    <TouchableOpacity style={{width:'95%',
-                                                            height:80,
-                                                            borderRadius:20,
-                                                            margin: 10,
-                                                            borderWidth:2,
-                                                            borderColor:colorsB[0],
-                                                            backgroundColor:'#fff',
-                                                            elevation:1,
-                                                            flexDirection:'row',}} key={n} onPress={()=>this.nopbaia(this.state.keys[n],n)} >
-                                        <View style={{height:'100%',flex:4,justifyContent:'center'}}>
-                                            <HTMLView value={this.state.item[n]}/>
-                                        </View>
-                                    </TouchableOpacity>      
+                                    <CheckBox
+                                        title={<HTMLView value={this.state.item[n]}/>}
+                                        checked={this.state.check[n]}
+                                        onPress={() => this.nopbaia(this.state.keys[n],n)}
+                                    />      
                                 </View>
                             )
                         }
                     )
                 }
                 <View >
-                    <TouchableOpacity style={{width:'95%',
-                                            height:80,
-                                            borderRadius:20,
-                                            margin: 10,
-                                            borderWidth:2,
-                                            borderColor:colorsB[0],
-                                            backgroundColor:'#fff',
-                                            elevation:1,
-                                            flexDirection:'row',}} onPress={()=>this.chontc(chieudai)} >
-                        <View style={{height:'100%',flex:4,justifyContent:'center'}}>
-                            <Text>Chọn tất cả</Text>
-                        </View>
-                    </TouchableOpacity>      
+                    <CheckBox
+                        title='Chọn tất cả'
+                        checked={this.state.chontca}
+                        onPress={() => this.chontc(chieudai)}
+                    />      
                 </View>
                 </View>
                 
@@ -183,6 +191,7 @@ export default class luachon extends React.Component{
             </LinearGradient>
 
         </View>
+        )}
        
     </LinearGradient>
 )
@@ -214,7 +223,6 @@ const styles = StyleSheet.create({
         width:'100%',
     },
     content:{
-        alignItems:'center',
         justifyContent:'center'
     },
     square:{
