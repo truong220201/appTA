@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground } from 'react-native';
+import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground,ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
@@ -8,20 +8,25 @@ import { collection, getDocs } from "firebase/firestore";
 import HTMLView from 'react-native-htmlview';
 import { LazyloadScrollView, LazyloadView } from 'react-native-scroll-lazy';
 
-
 export default class Home extends React.Component{ 
     constructor(props) {
         super(props);
         //this.itemRef = getDatabase(firebaseApp);
         //console.log(this.itemRef);
+        const { route,navigation } = this.props;
+        const { uid,email} = route.params;
+        this.uid=uid;
+        this.email=email;
         this.state = {
+
             keys:[],
             item:[],
             nameqs:[],
             leng:0,
+            isLoading:true
             };
       }
-      async listenForItems(itemRef){
+    async listenForItems(itemRef){
         const db = getFirestore(firebaseApp);
         //console.log(db);
         //const docRef = doc(db, "Quiz", "03ZnOo7bgWhJvJU9Th9G");
@@ -30,33 +35,37 @@ export default class Home extends React.Component{
         querySnapshot.forEach((doc) => {
           //console.log(`${doc.id} => ${doc.data()}`);
           //console.log(`${doc.data().Title}`);
-          //console.log(`length: ${doc.id.length}`)
+          //console.log(`id: ${doc.id}`)
           this.setState({
             //item:this.state.item.push(data)
             //item:Object.keys(`${doc.data().Title}`)
             keys:[...this.state.keys,`${doc.id}`],
             item:[...this.state.item,`${doc.data().Name}`],
             //nameqs:[...this.state.item,`${doc.data().name_Question}`],
-            leng:`${doc.id.length}`
+            leng:`${doc.id.length}`,
+            isLoading:false
+
           })
         });
+        //console.log('phan tu dau tien : ',this.state.keys[1]);
         //console.log('item:'+this.state.item);
         //console.log('length:'+this.state.leng);
+
     }
   render(){
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
-    const { navigation } = this.props;
+    const { route,navigation } = this.props;
     var l = this.state.leng;
     //console.log(this.state.keys);
     
     return (
     <LinearGradient colors={[ '#aef6d6' , '#fff' , '#fff' , '#fff']} style={styles.container}>
         <View style = {styles.vw1}>
-            <Icon name='list' style={{marginRight:10,}}/>
-            <Text style={{color:'black',fontSize:20,fontWeight:'bold',}}>Giáo trình chính</Text>
+            <Text style={{color:'#51ab41',fontSize:20,fontWeight:'bold',}}>Giáo trình chính</Text>
         </View>
-        <View style={styles.vw2}>
+        {this.state.isLoading ? <ActivityIndicator style={styles.vw2} size="large" color="#00ff00" />:(
+            <View style={styles.vw2}>
             <ScrollView  showsVerticalScrollIndicator={false}>
                 <View style={{height:80,}}></View>
                 <View style={styles.content} >
@@ -87,7 +96,7 @@ export default class Home extends React.Component{
                             </View>
                             */
                             <View key={n} style={{height:windowHeight/4,padding:20,flexDirection:'row'}}>
-                                <TouchableOpacity key={n} onPress={()=>navigation.navigate('menuScreen',{loaiId: 1,ten:this.state.item[n],id:this.state.keys[n],})} style={{flex:1,alignItems:'center'}}>
+                                <TouchableOpacity key={n} onPress={()=>navigation.navigate('luachon',{loaiId: 1,ten:this.state.item[n],id:this.state.keys[n],uid:this.uid,email:this.email})} style={{flex:1,alignItems:'center'}}>
                                     <Image
                                         style={styles.circle}
                                         source={{uri:'https://www.clipartmax.com/png/middle/171-1715839_purchase-book-icon-book-icon-green-png.png'}}
@@ -104,7 +113,19 @@ export default class Home extends React.Component{
                 </View>
 
             </ScrollView >
+            <View style={styles.footer}>
+              <TouchableOpacity  style={styles.c4} onPress={()=>null}>
+                  <Icon style = {{}} name="home" size={25} color="#6bdb91"
+                  />
+              </TouchableOpacity>
+              <TouchableOpacity  style={styles.c4} onPress={()=>navigation.navigate('ps', {uid:this.uid})}>
+                  <Icon style = {{}} name="person" size={25} color="grey"
+                  />
+              </TouchableOpacity>
+            </View>
         </View>
+        )}
+        
         
     </LinearGradient>
 )
@@ -114,6 +135,20 @@ componentDidMount(){
 }
 };
 const styles = StyleSheet.create({
+    footer: {
+        height:60,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        flexDirection:'row',
+        elevation:3,
+      },
+      c4: { 
+        padding:10,
+        flex: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection:'row',
+      },
     container: {
       flex: 1,
       backgroundColor: '#fff',
