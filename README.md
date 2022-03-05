@@ -28,3 +28,8 @@ Verson:1.2 (03/03/2022)
 - Edit some other small details
 - Add user info form
 - Add logout
+
+Update(03/05/2022)
+
+
+- Fixed not showing some exercises
