@@ -71,11 +71,19 @@ export default class testScreen extends React.Component{
      
       //Thay doi cau hoi/ tra loi
       check(inum){
+        
+        console.log('length: ',this.state.item.length)
+        //console.log('inum: ',inum)
         if(this.state.item.length>=inum){
+            console.log('itemK: ',this.state.itemK[inum-1]);
+            //console.log('item: ',this.state.item);
             [...Array(this.state.item.length)].map((o,n) => {
-                if(this.state.itemK[inum-1] == this.state.item[n]){
+                if(this.state.item[n] == this.state.itemK[inum-1]){
                     //console.log('ok ',this.state.nameqs);
+                    console.log('otp0:',this.state.opt0)
+                    console.log('n:',n,'inum:',inum-1)
                     this.setState({
+                        //isLoading:true,
                         //item:this.state.item.push(data)
                         //item:Object.keys(`${doc.data().Title}`)
                         //re-render khi su dung shouldComponentUpdate
@@ -83,13 +91,15 @@ export default class testScreen extends React.Component{
                         //
                         itemQ:inum,
                         q:this.state.nameqs[inum-1],
-                        o:[this.state.opt0[n],this.state.opt1[n],this.state.opt2[n],this.state.opt3[n]],
-                        ans:this.state.trueAns[n],
+                        //o:[this.state.opt0[n],this.state.opt1[n],this.state.opt2[n],this.state.opt3[n]],
+                        //ans:this.state.trueAns[n],
                         //answ:[...this.state.answ[inum-1]=this.state.trueAns[inum-1]],
                         //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
+                        isLoading:true,
                       })
+                      
                       //console.log('helloc');
-                      console.log('inum:',inum);
+                      //console.log('inum:',inum);
                 }
             })
         }else{
@@ -110,13 +120,18 @@ export default class testScreen extends React.Component{
     reset(){    
         this.setState ({
             item:[],
+            o:[],
             opt0:[],
             opt1:[],
             opt2:[],
             opt3:[],
-            itemK:[],
-            nameqs:[],
             });
+
+            const valueToRemove = 1;
+            const new_arr = this.state.itemK.filter(item => item !== valueToRemove);
+            this.setState({
+                itemK:new_arr,
+            })     
     };
 
 
@@ -149,7 +164,27 @@ export default class testScreen extends React.Component{
     }
 
     
-
+    async listenForItemsQS(inum){
+        const db = getFirestore(firebaseApp);
+        const querySnapshotQS = await getDocs(collection(db, "Question"));
+        
+        querySnapshotQS.forEach((doc) => {
+            //console.log(`name qs : ${doc.data().Id_cate_mtct}`);
+            //console.log('i: ',this.i);
+            
+            [...Array(this.i.length)].map((o,n) => {
+                if(this.i[n] == `${doc.data().Id_cate_mtct}`){
+                    //console.log('ok');
+                    this.setState({
+                        
+                        itemK:[...this.state.itemK,`${doc.id}`],
+                        nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
+                    })
+                    console.log('length item k: ',this.state.itemK.length);
+                }
+            })
+        })
+    }
     
 
 
@@ -160,21 +195,7 @@ export default class testScreen extends React.Component{
         //const docRef = doc(db, "Quiz", "03ZnOo7bgWhJvJU9Th9G");
         //const docSnap = await getDoc(docRef);
         const querySnapshot = await getDocs(collection(db, "Option"));
-        const querySnapshotQS = await getDocs(collection(db, "Question"));
-        querySnapshotQS.forEach((doc) => {
-            //console.log(`name qs : ${doc.data().Id_cate_mtct}`);
-            //console.log('i: ',this.i.length);
-            [...Array(this.i.length)].map((o,n) => {
-                if(this.i[n] == `${doc.data().Id_cate_mtct}`){
-                    console.log('ok');
-                    this.setState({
-                        itemK:[...this.state.itemK,`${doc.id}`],
-                        nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
-                    })
-                    //console.log('length item k: ',this.state.itemK.length);
-                }
-            })
-        }),
+        
 
         querySnapshot.forEach((doc) => {
           //console.log(`${doc.id} => ${doc.data().id_Question}`);
@@ -183,7 +204,8 @@ export default class testScreen extends React.Component{
          //console.log(this.i);
          //show length
          //console.log(this.state.item.length);
-         //console.log(this.state.itemK);
+         //console.log('idqs: ',`${doc.data().id_Question}`);
+         //console.log(this.state.itemK.length);
          [...Array(this.state.itemK.length)].map((o,n) => {
             if(this.state.itemK[n] == `${doc.data().id_Question}`){
                //console.log('ok:',this.state.opt0);
@@ -197,20 +219,20 @@ export default class testScreen extends React.Component{
                     opt2:[...this.state.opt2,`${doc.data().Option_ans[2]}`],
                     opt3:[...this.state.opt3,`${doc.data().Option_ans[3]}`],
                     trueAns:[...this.state.trueAns,`${doc.data().True_ans}`],
-                    isLoading:false,
+                    
                 });
-                //console.log('length item k: ',this.state.itemK.length);
+                console.log('length item k: ',this.state.itemK);
             }
         })
          
         //console.log(`${doc.data().id_Question}`);
         //console.log(this.state.itemK[this.num])
-        //console.log('state itemk:' ,this.state.itemK);
+        //console.log('state itemk:' ,this.state.itemK[inum-1]);
         //console.log('state item:' ,this.state.item.length-1);
-
+        
         //Dat gia tri cho phan tu thu nhat
-        if(this.state.itemK[inum-1] == this.state.item[this.state.item.length-1]){
-            //console.log('ok ',this.state.nameqs);
+        if(this.state.item[this.state.item.length-1]==this.state.itemK[inum-1]){
+            //console.log('ok ',this.state.o);
             this.setState({
                 //item:this.state.item.push(data)
                 //item:Object.keys(`${doc.data().Title}`)
@@ -223,9 +245,11 @@ export default class testScreen extends React.Component{
                 ans:this.state.trueAns[this.state.item.length-1],
                 //answ:[...this.state.answ[inum-1]=this.state.trueAns[inum-1]],
                 //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
+                isLoading:false,
               })
+              
               //console.log('helloc');
-              console.log('inum:',inum);
+              //console.log('inum:',inum);
         }
 
         }); 
@@ -447,7 +471,7 @@ export default class testScreen extends React.Component{
 
 
     componentDidMount(){
-
+        this.listenForItemsQS(this.num);
         this.listenForItems(this.num);
         //Timer
         this.interval = setInterval(
@@ -515,7 +539,7 @@ export default class testScreen extends React.Component{
     //console.log(this.tagsStyles);
     //console.log(this.state.o);
     console.log('render');
-    
+    //console.log('o:',this.state.o)
 
 
     if(l==1){
