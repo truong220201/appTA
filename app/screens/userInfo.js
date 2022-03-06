@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
+  SafeAreaView,Alert
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
@@ -20,13 +20,15 @@ class ProfileScreen extends React.Component{
         //this.itemRef = getDatabase(firebaseApp);
         //console.log(this.itemRef);
         const { route,navigation } = this.props;
-        const { uid} = route.params;
+        const { uid,email} = route.params;
         console.log(uid)
         this.uid=uid;
-        this.email='';
-        this.diemtl=0;
+        this.email = email;
+        this.state = {
+          diemtl:0,
+        }
       }
-
+      //Lay diem tu firestore
       async listenForItems(itemRef){
         const db = getFirestore(firebaseApp);
         //console.log(db);
@@ -35,22 +37,39 @@ class ProfileScreen extends React.Component{
         const querySnapshot = await getDocs(collection(db, "User"));
         querySnapshot.forEach((doc) => {
             if(`${doc.data().Uid}`==this.uid){
-                this.email=`${doc.data().Email}`
-                this.diemtl=`${doc.data().Diem}`
+                this.setState({
+                  diemtl:`${doc.data().Diem}`
+                })
             }   
         });
         //console.log('phan tu dau tien : ',this.state.keys[1]);
         //console.log('item:',this.email);
         //console.log('length:'+this.state.leng);
     }
-
+    componentDidMount(){
+      this.listenForItems();
+    }
+    thongbao(){
+      Alert.alert(
+        "Thông báo",
+        "Tính năng bổ sung thông tin người dùng sẽ ra mắt vào phiên bản sau, xin quý khách thông cảm.",
+        [
+            {
+                text: "Ok",
+                onPress: () => null,
+                style: "cancel",
+            }
+        ],
+    );
+    }
     render(){
        
 
-            this.listenForItems()
+            
             const emaila=this.email;
-            const diemtla=this.diemtl;
-            console.log('k;',this.email)
+            const diemtla=this.state.diemtl;
+            console.log(diemtla)
+            console.log('k:',this.email)
             const { navigation } = this.props;
         
   return (
@@ -74,11 +93,11 @@ class ProfileScreen extends React.Component{
               <TouchableOpacity
                 style={styles.userBtn}
                 onPress={() => {
-                  navigation.navigate('EditProfile');
+                  this.thongbao();
                 }}>
                 <Text style={styles.userBtnTxt}>Edit</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.userBtn} onPress={() => logout()}>
+              <TouchableOpacity style={styles.userBtn} onPress={()=>navigation.navigate('front')}>
                 <Text style={styles.userBtnTxt}>Logout</Text>
               </TouchableOpacity>
         </View>
