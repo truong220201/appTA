@@ -15,12 +15,12 @@ export default class DanhSach extends React.Component{
             <Text style={{color:'#fff',fontSize:50}}>Learn English</Text>
         </View>
         <View style={{flex:3,width:'100%',alignItems:'center',justifyContent:'center',justifyContent:'flex-end'}}>
-            <TouchableHighlight style={styles.btnStart} onPress={()=>navigation.navigate('btab')} underlayColor="white">
+            <TouchableHighlight style={styles.btnStart} onPress={()=>navigation.navigate('home',{uid:'0',email:'Anonymous'})} underlayColor="white">
                 <View>
-                    <Text style={styles.btnTextStart}>BẮT ĐẦU</Text>
-                </View>
+                    <Text style={styles.btnTextStart}>BẮT ĐẦU MÀ KHÔNG DÙNG TÀI KHOẢN</Text>
+                </View> 
             </TouchableHighlight>
-            <TouchableHighlight style={styles.btnLoggin} onPress={this._onPressButton} underlayColor="white">
+            <TouchableHighlight style={styles.btnLoggin} onPress={()=>navigation.navigate('dangnhap')} underlayColor="white">
                 <View>
                     <Text style={styles.btnTextLoggin}>ĐĂNG NHẬP</Text>
                 </View>
