@@ -17,6 +17,7 @@ export default class Home extends React.Component{
         const { uid,email} = route.params;
         this.uid=uid;
         this.email=email;
+        console.log(uid,email);
         this.state = {
 
             keys:[],
@@ -118,7 +119,7 @@ export default class Home extends React.Component{
                   <Icon style = {{}} name="home" size={25} color="#6bdb91"
                   />
               </TouchableOpacity>
-              <TouchableOpacity  style={styles.c4} onPress={()=>navigation.navigate('ps', {uid:this.uid})}>
+              <TouchableOpacity  style={styles.c4} onPress={()=>navigation.navigate('ps', {uid:this.uid,email:this.email})}>
                   <Icon style = {{}} name="person" size={25} color="grey"
                   />
               </TouchableOpacity>
