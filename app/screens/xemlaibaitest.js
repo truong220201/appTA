@@ -8,6 +8,8 @@ import CountDown from 'react-native-countdown-component';
 import RenderHtml from 'react-native-render-html';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RadioButtons,SegmentedControls } from 'react-native-radio-buttons';
+import HTMLView from 'react-native-htmlview';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +23,12 @@ export default class xemlai extends React.Component{
         this.nvt = navigation;
         const {diem,item,itemK,ds,bailam,cauhoi,d0,d1,d2,d3,dapan} = route.params;
         console.log(bailam)
+        this.tagsStylesC = {
+            span: {
+                color:'black',
+                fontSize:17,
+              },
+          }
         this.kq=[];
         this.dem=0;
         this.state = {
@@ -93,7 +101,7 @@ export default class xemlai extends React.Component{
                 [
                     {
                         text: "Ok",
-                        onPress: () => null,
+                        onPress: () => this.goto(this.state.itemQ-1),
                         style: "cancel",
                     }
                 ],
@@ -101,7 +109,9 @@ export default class xemlai extends React.Component{
         }
     };
     async listenForItems(inum){
-        console.log('ok ');
+        console.log('ok ',this.state.itemQ);
+
+        if(this.state.item.length>=inum){
         [...Array(this.state.item.length)].map((o,n) => {
             if(this.state.itemK[inum-1] == this.state.item[n]){
                 //console.log('ok ',this.state.nameqs);
@@ -121,6 +131,19 @@ export default class xemlai extends React.Component{
         });
          this.dvt();
         console.log(this.state.colorw);
+    }else{
+        Alert.alert(
+            "Thông báo",
+            "Phần này chưa có đủ bài tập...",
+            [
+                {
+                    text: "Ok",
+                    onPress: () => this.goto(this.state.itemQ-1),
+                    style: "cancel",
+                }
+            ],
+        );
+    }
     }
 
 
@@ -224,7 +247,7 @@ export default class xemlai extends React.Component{
     const {diem,ds,bailam,cauhoi,d0,d1,d2,d3,dapan} = route.params;
     const i = 1;
     var l = this.state.itemQ;
-    const question = {html: this.state.q,};
+    const question = this.state.q;
     //console.log('bai lam : ',bailam[l-1]);
 
     //console.log('lua chon : ',this.state.o[l-1]);
@@ -351,7 +374,11 @@ export default class xemlai extends React.Component{
         <ScrollView style={{width:windowWidth,}} showsScrollIndicator={false}>
             <View style={styles.vw2}>   
                 <Text style={styles.txtLevel}>Câu {this.state.itemQ}</Text>
-                <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={question} />
+                
+                <HTMLView
+                    stylesheet={this.tagsStylesC}
+                    value={question}
+                />
             </View>
            
             <View style={{margin: 20}}>
@@ -390,7 +417,10 @@ export default class xemlai extends React.Component{
                                                                                             marginBottom:'6%'}}>
                                         <Text style={styles.abcd}></Text>
                                         <View style={{top:5,}}>
-                                            <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={{html:option}} />
+                                        <HTMLView
+                                            stylesheet={this.tagsStylesC}
+                                            value={option}
+                                        />
                                         </View>
                                     </TouchableOpacity>
                                 );
@@ -404,7 +434,10 @@ export default class xemlai extends React.Component{
                                                                                             marginBottom:'6%'}}>
                                         <Text style={styles.abcd}></Text>
                                         <View style={{top:5,}}>
-                                            <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={{html:option}} />
+                                        <HTMLView
+                                            stylesheet={this.tagsStylesC}
+                                            value={option}
+                                        />
                                         </View>
                                     </TouchableOpacity>
                                 );
@@ -421,7 +454,10 @@ export default class xemlai extends React.Component{
                                                                                             marginBottom:'6%'}}>
                                         <Text style={styles.abcd}></Text>
                                         <View style={{top:5,}}>
-                                            <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={{html:option}} />
+                                        <HTMLView
+                                            stylesheet={this.tagsStylesC}
+                                            value={option}
+                                        />
                                         </View>
                                     </TouchableOpacity>
                                 );
@@ -435,7 +471,10 @@ export default class xemlai extends React.Component{
                                                                                             marginBottom:'6%'}}>
                                         <Text style={styles.abcd}></Text>
                                         <View style={{top:5,}}>
-                                            <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={{html:option}} />
+                                        <HTMLView
+                                            stylesheet={this.tagsStylesC}
+                                            value={option}
+                                        />
                                         </View>
                                     </TouchableOpacity>
                                 );
