@@ -33,3 +33,14 @@ Update(03/05/2022)
 
 
 - Fixed not showing some exercises
+
+
+Verson:1.3 (03/06/2022)
+
+- Add attribute uid, email to front interface, home, luachon, listbt
+- Edit error does not display user
+- Edit error does not display names in xelaidapan
+- We will try to update the Home interface to load faster next time
+
+
+
