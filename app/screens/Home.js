@@ -6,7 +6,6 @@ import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore"; 
 import HTMLView from 'react-native-htmlview';
-import { LazyloadScrollView, LazyloadView } from 'react-native-scroll-lazy';
 
 export default class Home extends React.Component{ 
     constructor(props) {
@@ -24,7 +23,8 @@ export default class Home extends React.Component{
             item:[],
             nameqs:[],
             leng:0,
-            isLoading:true
+            isLoading:true,
+            loadingIMG:true,
             };
       }
     async listenForItems(itemRef){
@@ -61,18 +61,21 @@ export default class Home extends React.Component{
     //console.log(this.state.keys);
     
     return (
-    <LinearGradient colors={[ '#aef6d6' , '#fff' , '#fff' , '#fff']} style={styles.container}>
-        <View style = {styles.vw1}>
-            <Text style={{color:'#51ab41',fontSize:20,fontWeight:'bold',}}>Giáo trình chính</Text>
-        </View>
-        {this.state.isLoading ? <ActivityIndicator style={styles.vw2} size="large" color="#00ff00" />:(
+    <LinearGradient colors={[ '#fff' , '#fff' , '#fff' , '#fff','#fff','#fff']} style={styles.container}>
+        <LinearGradient colors={[ '#aef6d6c9' , '#aef6d68f' , '#aef6d659' , '#ffffff00']}  style = {styles.vw1}>
+            
+            <View>
+                <Text style={{color:'#51ab41',fontSize:20,fontWeight:'bold',marginLeft:20,}}>Giáo trình chính</Text>
+            </View>
+        </LinearGradient>
+        {this.state.isLoading ? <View style={{alignItems:'center',justifyContent:'center',top:350}}><Text>Đang nạp dữ liệu, bạn chờ xíu nhé...</Text><ActivityIndicator size="large" color="#00ff00" /></View>:(
             <View style={styles.vw2}>
             <ScrollView  showsVerticalScrollIndicator={false}>
                 <View style={{height:80,}}></View>
                 <View style={styles.content} >
                 {
                     //Số hàng ngang
-                    [...Array(7)].map((o,n) => {
+                    [...Array(12)].map((o,n) => {
                         return(
                             /*
                             <View key={n} style={{height:windowHeight/4,padding:20,flexDirection:'row'}}>
@@ -96,11 +99,13 @@ export default class Home extends React.Component{
                                 }
                             </View>
                             */
-                            <View key={n} style={{height:windowHeight/4,padding:20,flexDirection:'row'}}>
+                            <View key={n} style={{height:windowHeight/4,padding:20,width:windowWidth/3,}}>
                                 <TouchableOpacity key={n} onPress={()=>navigation.navigate('luachon',{loaiId: 1,ten:this.state.item[n],id:this.state.keys[n],uid:this.uid,email:this.email})} style={{flex:1,alignItems:'center'}}>
+                                
                                     <Image
                                         style={styles.circle}
                                         source={{uri:'https://www.clipartmax.com/png/middle/171-1715839_purchase-book-icon-book-icon-green-png.png'}}
+                                        //onLoadEnd={ ()=>{ console.log('load xong') }}
                                     />
                                     <View style={styles.vTxtLoai} >
                                         <HTMLView value={this.state.item[n]}/>
@@ -172,7 +177,8 @@ const styles = StyleSheet.create({
     },
     content:{
         alignItems:'center',
-        justifyContent:'center'
+        justifyContent:'center',
+        width:'100%',
     },
     circle:{
         borderWidth:1,
