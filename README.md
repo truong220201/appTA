@@ -43,4 +43,12 @@ Verson:1.3 (03/06/2022)
 - We will try to update the Home interface to load faster next time
 
 
+Verson:1.4 (03/11/2022)
+
+- Randomly arrange questions, change color when accumulated
+- The button does not move during the test
+- Change and update the interface of the form Home, luachon, listbt
+- Hide/show password for login and registration form
+- And some other updates...
+
 
