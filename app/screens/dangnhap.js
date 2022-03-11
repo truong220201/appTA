@@ -14,9 +14,15 @@ import{
 import { LinearGradient } from 'expo-linear-gradient';
 import COLORS from './color';
 import Icon from 'react-native-vector-icons/Ionicons';
-
 import { getAuth, signInWithEmailAndPassword,createUserWithEmailAndPassword } from "firebase/auth";
 import { firebaseApp } from '../../components/firebaseConfig';
+import { doc, setDoc } from "firebase/firestore"; 
+import { getFirestore } from "firebase/firestore";
+import { AsyncStorage } from 'react-native';
+
+import { CheckBox} from 'react-native-elements';
+//nho mat khau
+//import * as Keychain from 'react-native-keychain';
 
 const {width:WIDTH} =Dimensions.get('window');
 
@@ -28,15 +34,19 @@ export default class LoginScreen extends React.Component{
         const { route,navigation } = this.props;
         this.nvt = navigation;
     }
-    state = { email: '', password: '', errorMessage: null,uid:''}
-    dangnhap = () =>{
-       
-        this.nvt.navigate('btab',{uid:this.state.uid,email:this.state.email});
+    state = { email: '', password: '', errorMessage: null,uid:'',hidePass:true,iconPass:'eye-off-outline',nhoMK:false}
 
+    dangnhap = () =>{
+       //console.log('uid: ',this.state.uid)
+        this.nvt.navigate('home',{uid:this.state.uid,email:this.state.email});
+       
     }
+    
     handleLogin = () => {
+        //this.setItems()
         // TODO: Firebase stuff...
-        console.log('handleSignUp')
+        
+        //console.log('handleSignUp')
         const auth = getAuth(firebaseApp);
         //console.log('uid: ',auth.currentUser.uid);
             signInWithEmailAndPassword(auth, this.state.email, this.state.password)
@@ -71,9 +81,54 @@ export default class LoginScreen extends React.Component{
         
         
      }
-   
+    
+    anHienMk(){
+        if(this.state.hidePass==true){
+            this.setState({
+                hidePass:false,
+                iconPass:'eye-outline',
+            })
+
+        }else{
+            this.setState({
+                hidePass:true,
+                iconPass:'eye-off-outline'
+            })
+        }
+    }
+    
+   nhomatkhau(){
+    this.setState({nhoMK : !this.state.nhoMK})
+    
+    this.luumk()
+   }
+   //luu mat khau
+   async luumk(){
+    console.log(this.state.email)
+    if(this.state.nhoMK==true){
+        const e = 'a';
+        const p = 'b';
+        this._storeData();
+        
+    }
+    else{
+        console.log('huy')
+        //await Keychain.resetGenericPassword();
+    }
+   }
+   _storeData = async () => {
+  //  try {
+      await AsyncStorage.setItem('TASKS', 'I like to save it.');
+      console.log('nho mat khau')
+   // } catch (error) {
+      // Error saving data
+      console.log('bug')
+   // }
+  };
+
     render(){
         const { navigation } = this.props;
+        
     return(
         <LinearGradient  colors={[ '#6bdb91' , '#6bdb91' , '#73e9bb' , '#b9f5dc']} style={styles.backgroundContainer}>
             <View style={{flex:1,justifyContent:'center'}}>
@@ -89,19 +144,22 @@ export default class LoginScreen extends React.Component{
                     onChangeText={email => this.setState({ email })}
                     />
                 </View>
+
                 <View style={styles.inputContainer}>
                     <Icon name={'lock-closed-outline'} size={28} color={'#fff'} style={styles.inputIcon}/>
                     <TextInput style={styles.input}
                     placeholder={'Password'}
-                    secureTextEntry={true}
+
+                    secureTextEntry={this.state.hidePass}
                     placeholderTextColor={'#7a7a7a'}
                     underlineColorAndroid='transparent'
                     onChangeText={password => this.setState({ password })}
                     />
-                    <TouchableOpacity style={styles.btnEye}>
-                        <Icon name='eye-outline'size={26} color={'rgba(0,0,0,0.8)'}  />
+                    <TouchableOpacity style={styles.btnEye} onPress={()=>this.anHienMk()}>
+                        <Icon name={this.state.iconPass} size={26} color={'#fff'}  />
                     </TouchableOpacity>
                 </View>
+                
                 <TouchableOpacity  onPress={()=>navigation.navigate('dangky')}>
                     <Text style={{color:'white',fontSize:15,fontWeight:'bold',marginTop:20,}}>Chưa có tài khoản? Đăng ký ngay!</Text>
                 </TouchableOpacity>
@@ -144,7 +202,7 @@ const styles = StyleSheet.create({
         opacity:0.5,
     },
     input:{
-        width:WIDTH -105,
+        width:WIDTH -155,
         height:45,
         borderRadius:25,
         fontSize:16,
@@ -165,9 +223,8 @@ const styles = StyleSheet.create({
         flexDirection:'row',
     },
     btnEye:{
-        position:'absolute',
-        top:8,
-        right:37,
+        top:10,
+        right:10,
     },
     btnLogin:{
         width:WIDTH -55,
