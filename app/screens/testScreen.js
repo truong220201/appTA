@@ -10,6 +10,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RadioButtons,SegmentedControls } from 'react-native-radio-buttons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { doc, setDoc } from "firebase/firestore"; 
+import HTMLView from 'react-native-htmlview';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -21,14 +23,27 @@ export default class testScreen extends React.Component{
         //console.log(this.itemRef);
         const { route,navigation } = this.props;
         this.nvt = navigation;
-        const { baitap,name,n,ten,uid,email} = route.params;
-        console.log('baitap:',baitap);
+        const { baitap,n,ten,uid,email,itemK,nameqs,item,opt0,opt1,opt2,opt3,trueAns} = route.params;
+        //console.log('baitap:',opt0);
         console.log('uid form test:',uid)
         this.tagsStyles = {
             span: {
               color:'black',
+              fontSize:18,
             },
           };
+          this.tagsStylesB = {
+            span: {
+              color:'black',
+              fontSize:17,
+            },
+          };
+          this.tagsStylesC = {
+            span: {
+                color:'#fff',
+                fontSize:17,
+              },
+          }
         this.uid=uid;
         this.email=email;
         this.i = baitap;
@@ -41,16 +56,18 @@ export default class testScreen extends React.Component{
             hideNext:'flex',
             timer:500,
             keys:[],
-            item:[],
+            //id question
+            item:item,
+            //
             itemQ:1,
-            opt0:[],
-            opt1:[],
-            opt2:[],
-            opt3:[],
-            itemK:[],
-            nameqs:[],
+            opt0:opt0,
+            opt1:opt1,
+            opt2:opt2,
+            opt3:opt3,
+            itemK:itemK,
+            nameqs:nameqs,
             leng:0,
-            trueAns:[],
+            trueAns:trueAns,
             //test
             q:'',
             a1:'',
@@ -60,7 +77,7 @@ export default class testScreen extends React.Component{
             //
             selectedOption:'',
             optList:[],
-            o:[],
+            o:['','','',''],
             ans:'',
             answ:[0,0,0,0,0,0,0,0,0,0],
         };
@@ -69,39 +86,15 @@ export default class testScreen extends React.Component{
         this.opt = this.state.options;
       }
      
-      //Thay doi cau hoi/ tra loi
+      //Thay doi bai tap
       check(inum){
-        
+        console.log('bai : ',inum)
         console.log('length: ',this.state.item.length)
         //console.log('inum: ',inum)
         if(this.state.item.length>=inum){
-            console.log('itemK: ',this.state.itemK[inum-1]);
+            //console.log('itemK: ',this.state.itemK[inum-1]);
             //console.log('item: ',this.state.item);
-            [...Array(this.state.item.length)].map((o,n) => {
-                if(this.state.item[n] == this.state.itemK[inum-1]){
-                    //console.log('ok ',this.state.nameqs);
-                    console.log('otp0:',this.state.opt0)
-                    console.log('n:',n,'inum:',inum-1)
-                    this.setState({
-                        //isLoading:true,
-                        //item:this.state.item.push(data)
-                        //item:Object.keys(`${doc.data().Title}`)
-                        //re-render khi su dung shouldComponentUpdate
-                        itemK:[...this.state.itemK,1],
-                        //
-                        itemQ:inum,
-                        q:this.state.nameqs[inum-1],
-                        //o:[this.state.opt0[n],this.state.opt1[n],this.state.opt2[n],this.state.opt3[n]],
-                        //ans:this.state.trueAns[n],
-                        //answ:[...this.state.answ[inum-1]=this.state.trueAns[inum-1]],
-                        //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
-                        isLoading:true,
-                      })
-                      
-                      //console.log('helloc');
-                      //console.log('inum:',inum);
-                }
-            })
+            this.listenForItems(inum);
         }else{
             Alert.alert(
                 "Thông báo",
@@ -117,16 +110,15 @@ export default class testScreen extends React.Component{
         }
         
     };
+
+    //reset sau moi lan lap
     reset(){    
         this.setState ({
-            item:[],
             o:[],
-            opt0:[],
-            opt1:[],
-            opt2:[],
-            opt3:[],
+            q:'',
+            ans:'',
             });
-
+            //loại bỏ số 1 sau mảng item sau mỗi lần lặp
             const valueToRemove = 1;
             const new_arr = this.state.itemK.filter(item => item !== valueToRemove);
             this.setState({
@@ -134,7 +126,7 @@ export default class testScreen extends React.Component{
             })     
     };
 
-
+    //dat va lay du lieu user
     async setUser(email,diem,uid){
         const db = getFirestore(firebaseApp);
         console.log('uiddddddd:',uid)
@@ -152,11 +144,17 @@ export default class testScreen extends React.Component{
 
         querySnapshotUser.forEach((doc) => {
             //console.log(`name qs : ${doc.data().Id_cate_mtct}`);
+
             console.log('uida:',uid)
             console.log('user: ',`${doc.data().Uid}`);
             if(`${doc.data().Uid}`==uid){
-                this.diems=this.diems+`${doc.data().Score}`;
-                this.setUser(this.email,this.diems,uid)
+                if(`${doc.data().Uid}`==0){
+                    this.diems=0;
+                    this.setUser(this.email,this.diems,uid)
+                }else{
+                    this.diems=this.diems+parseInt(`${doc.data().Diem}`);
+                    this.setUser(this.email,this.diems,uid)
+                }
             }else{
                 this.setUser(this.email,this.diems,uid)
             }
@@ -164,97 +162,46 @@ export default class testScreen extends React.Component{
     }
 
     
-    async listenForItemsQS(inum){
-        const db = getFirestore(firebaseApp);
-        const querySnapshotQS = await getDocs(collection(db, "Question"));
-        
-        querySnapshotQS.forEach((doc) => {
-            //console.log(`name qs : ${doc.data().Id_cate_mtct}`);
-            //console.log('i: ',this.i);
-            
-            [...Array(this.i.length)].map((o,n) => {
-                if(this.i[n] == `${doc.data().Id_cate_mtct}`){
-                    //console.log('ok');
-                    this.setState({
-                        
-                        itemK:[...this.state.itemK,`${doc.id}`],
-                        nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
-                    })
-                    console.log('length item k: ',this.state.itemK.length);
-                }
-            })
-        })
-    }
     
 
-
-      async listenForItems(inum){
-        
-        const db = getFirestore(firebaseApp);
-        //console.log(db);
-        //const docRef = doc(db, "Quiz", "03ZnOo7bgWhJvJU9Th9G");
-        //const docSnap = await getDoc(docRef);
-        const querySnapshot = await getDocs(collection(db, "Option"));
-        
-
-        querySnapshot.forEach((doc) => {
-          //console.log(`${doc.id} => ${doc.data().id_Question}`);
-          //console.log('data:',`${doc.data().True_ans}`);
-          //console.log(`length: ${doc.id.length}`);
-         //console.log(this.i);
-         //show length
-         //console.log(this.state.item.length);
-         //console.log('idqs: ',`${doc.data().id_Question}`);
-         //console.log(this.state.itemK.length);
-         [...Array(this.state.itemK.length)].map((o,n) => {
-            if(this.state.itemK[n] == `${doc.data().id_Question}`){
-               //console.log('ok:',this.state.opt0);
+    //so sanh va set du lieu cho cau hoi duoc chi dinh
+    listenForItems(inum){
+        if(this.state.item.length>=inum){
+        [...Array(this.state.item.length)].map((o,n) => {
+            if(this.state.item[n]==this.state.itemK[inum-1]){
+                //console.log('ok ',this.state.opt1[n]);
                 this.setState({
                     //item:this.state.item.push(data)
                     //item:Object.keys(`${doc.data().Title}`)
-                    item:[...this.state.item,`${doc.data().id_Question}`],
-                    //nameqs:[...this.state.nameqs,1],
-                    opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
-                    opt1:[...this.state.opt1,`${doc.data().Option_ans[1]}`],
-                    opt2:[...this.state.opt2,`${doc.data().Option_ans[2]}`],
-                    opt3:[...this.state.opt3,`${doc.data().Option_ans[3]}`],
-                    trueAns:[...this.state.trueAns,`${doc.data().True_ans}`],
-                    
-                });
-                console.log('length item k: ',this.state.itemK);
+                    //re-render khi su dung shouldComponentUpdate
+                    itemK:[...this.state.itemK,1],
+                    //
+                    itemQ:inum,
+                    q:this.state.nameqs[inum-1],
+                    o:[this.state.opt0[n],this.state.opt1[n],this.state.opt2[n],this.state.opt3[n]],
+                    ans:this.state.trueAns[n],
+                    //answ:[...this.state.answ[inum-1]=this.state.trueAns[inum-1]],
+                    //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
+                    isLoading:false,
+                })
+                //console.log('helloc');
             }
         })
-         
-        //console.log(`${doc.data().id_Question}`);
-        //console.log(this.state.itemK[this.num])
-        //console.log('state itemk:' ,this.state.itemK[inum-1]);
-        //console.log('state item:' ,this.state.item.length-1);
-        
-        //Dat gia tri cho phan tu thu nhat
-        if(this.state.item[this.state.item.length-1]==this.state.itemK[inum-1]){
-            //console.log('ok ',this.state.o);
-            this.setState({
-                //item:this.state.item.push(data)
-                //item:Object.keys(`${doc.data().Title}`)
-                //re-render khi su dung shouldComponentUpdate
-                itemK:[...this.state.itemK,1],
-                //
-                itemQ:inum,
-                q:this.state.nameqs[inum-1],
-                o:[this.state.opt0[this.state.item.length-1],this.state.opt1[this.state.item.length-1],this.state.opt2[this.state.item.length-1],this.state.opt3[this.state.item.length-1]],
-                ans:this.state.trueAns[this.state.item.length-1],
-                //answ:[...this.state.answ[inum-1]=this.state.trueAns[inum-1]],
-                //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
-                isLoading:false,
-              })
-              
-              //console.log('helloc');
-              //console.log('inum:',inum);
-        }
-
-        }); 
-        //console.log('item:'+this.state.item);
+        console.log('itemK :'+this.state.itemK);
         //console.log('length:'+this.state.leng);
+        }else{
+            Alert.alert(
+                "Thông báo",
+                "Phần này chưa có đủ bài tập...",
+                [
+                    {
+                        text: "Ok",
+                        onPress: () => this.goto(this.state.itemQ),
+                        style: "cancel",
+                    }
+                ],
+            );
+        }
     }
 
 
@@ -282,7 +229,7 @@ export default class testScreen extends React.Component{
 
 
 
-
+    //dap an duoc chon
     setSelectedOption(selectedOption){
         this.setState({
             optList:[...this.state.optList,selectedOption],
@@ -291,7 +238,7 @@ export default class testScreen extends React.Component{
             selectedOption,
         });
         this.state.answ[this.state.itemQ-1] = selectedOption;
-        //console.log(this.state.answ);
+        console.log(this.state.answ);
     }
     
 
@@ -319,37 +266,40 @@ export default class testScreen extends React.Component{
 
 
 
-
+    //xu ly su kien cho nhung button chuyen bai tap
     goto(g){
-        this.check(g);
-        this.listenForItems(g);
+        //this.check(g);
         this.reset();
+        this.listenForItems(g);
+        
     };
     goNext(g){
         
         if(g>10){
-            this.listenForItems(1);
             this.reset();
+            this.listenForItems(1);
+            
             
         }else{
-            this.check(g);
-            this.listenForItems(g);
             this.reset();
+            this.listenForItems(g);
         }
     };
     goBack(g){
         
         if(g<1){
+            this.reset();
             this.listenForItems(10)
-            this.reset();
+            
         }else{
-            this.check(g);
-            this.listenForItems(g);
             this.reset();
+            this.listenForItems(g);
+            
 
         }
     };
 
+    //su kien cho nut back, exit
     qsExit = () =>
         Alert.alert(
             "Nhắc nhở",
@@ -397,7 +347,7 @@ export default class testScreen extends React.Component{
 
 
 
-
+    //tinh diem sau khi nop bai
     dvt(){
         for(var n=0;n<this.state.item.length;n++){
             for(var m=0;m<this.state.item.length;m++){
@@ -412,7 +362,7 @@ export default class testScreen extends React.Component{
     }
 
 
-
+    //luu diem len firestore
     luudiem(){
         this.getUser()
         console.log(this.uid)
@@ -420,7 +370,7 @@ export default class testScreen extends React.Component{
 
 
 
-
+    //su kien nut nop bai
     nopbai(){
         Alert.alert(
             "Nhắc nhở",
@@ -469,9 +419,8 @@ export default class testScreen extends React.Component{
 
 
 
-
+    //life cycle
     componentDidMount(){
-        this.listenForItemsQS(this.num);
         this.listenForItems(this.num);
         //Timer
         this.interval = setInterval(
@@ -535,10 +484,12 @@ export default class testScreen extends React.Component{
     const i = baitap;
     var l = this.state.itemQ;
     
-    const question = {html: this.state.q,};
+    const question = {html: this.state.q};
+    const questiona = this.state.q
     //console.log(this.tagsStyles);
     //console.log(this.state.o);
     console.log('render');
+    //console.log('o:',this.state.o);
     //console.log('o:',this.state.o)
 
 
@@ -572,7 +523,7 @@ export default class testScreen extends React.Component{
                         timeToShow={['M', 'S']}
                         timeLabels={{m: null, s: null}}
                         showSeparator
-                        />
+                        />  
                     <Icon name = {'alarm'} size={20} color={'#1CC625'} style={{margin:5,}} />
                 </View>
                 <View style={{flex:1,justifyContent:'flex-end',flexDirection:'row',paddingRight:5,}}>
@@ -585,6 +536,7 @@ export default class testScreen extends React.Component{
                 {
                             
                     [...Array(10)].map((o,n) => {
+                        
                         if(n+1==l){
                             return(
                                 <TouchableOpacity key={this.baitap} onPress={()=>null} style={styles.btnCList}>
@@ -592,11 +544,19 @@ export default class testScreen extends React.Component{
                                 </TouchableOpacity>
                             )
                         }else{
-                            return(
-                                <TouchableOpacity key={this.baitap} onPress={()=>this.goto(n+1)} style={styles.btnList}>
-                                    <Text style={{color:'#b9b9b9',fontSize:15,}}>{n+1}</Text>
-                                </TouchableOpacity>
-                            )
+                            if(this.state.answ[n] !=0){
+                                return(
+                                    <TouchableOpacity key={this.baitap} onPress={()=>this.goto(n+1)} style={styles.btnDList}>
+                                        <Text style={{color:'#fff',fontSize:15,}}>{n+1}</Text>
+                                    </TouchableOpacity>
+                                )
+                            }else{
+                                return(
+                                    <TouchableOpacity key={this.baitap} onPress={()=>this.goto(n+1)} style={styles.btnList}>
+                                        <Text style={{color:'#b9b9b9',fontSize:15,}}>{n+1}</Text>
+                                    </TouchableOpacity>
+                                )
+                            }
                         }
                     }
                     )
@@ -608,7 +568,12 @@ export default class testScreen extends React.Component{
         <ScrollView style={{width:windowWidth,}} showsScrollIndicator={false}>
             <View style={styles.vw2}>   
                 <Text style={styles.txtLevel}>Câu {this.state.itemQ}</Text>
-                <RenderHtml enableExperimentalMarginCollapsing = { true } tagsStyles={this.tagsStyles} contentWidth={windowWidth} source={question} />
+                
+                    <HTMLView
+                    stylesheet={this.tagsStyles}
+                    value={questiona}
+                />
+
             </View>
            
             <View style={{marginLeft: 20,marginRight:20,}}>
@@ -635,16 +600,20 @@ export default class testScreen extends React.Component{
                         //console.log("num: ",this.state.answ[this.state.itemQ-1]);
                         if(option==this.state.answ[this.state.itemQ-1]){
                             return (
-                                <LinearGradient  start={{x: 0, y: 0.75}} end={{x: 1, y: 0.25}} colors={[ '#6bdb91' , '#6bdb91' , '#6bdb91' , '#b9f5dc']}  style={{borderWidth:0,
+                                <LinearGradient key={index} start={{x: 0, y: 0.75}} end={{x: 1, y: 0.25}} colors={[ '#6bdb91' , '#6bdb91' , '#6bdb91' , '#b9f5dc']}  style={{borderWidth:0,
                                                                                                                     borderColor:'#1CC625',
                                                                                                                     borderRadius:10,
                                                                                                                     padding:15,
                                                                                                                     marginBottom:'6%',
                                                                                                                     elevation:1,}} >
-                                    <TouchableOpacity onPress={onSelect} style={{flexDirection:'row',}} key={index}>
+                                    <TouchableOpacity onPress={onSelect} style={{flexDirection:'row',}} >
                                         <Text style={styles.abcd}></Text>
                                         <View style={{top:5,}}>
-                                            <RenderHtml enableExperimentalMarginCollapsing = { true }  tagsStyles={{span:{color:'#fff',backgroundColor:'#ffffff00'}}} contentWidth={windowWidth} source={{html:option}} style={{color:'orange'}} />
+                                            
+                                            <HTMLView
+                                            stylesheet={this.tagsStylesC}
+                                            value={option}
+                                        />
                                         </View>
                                     </TouchableOpacity>
                                 </LinearGradient>
@@ -661,7 +630,11 @@ export default class testScreen extends React.Component{
                                                                                         marginBottom:'6%',}}>
                                     <Text style={styles.abcd}></Text>
                                     <View style={{top:5,}}>
-                                        <RenderHtml enableExperimentalMarginCollapsing = { true } contentWidth={windowWidth} source={{html:option}} />
+                                        
+                                        <HTMLView
+                                        stylesheet={this.tagsStylesB}
+                                            value={option}
+                                        />
                                     </View>
                                 </TouchableOpacity>
                             );
@@ -676,7 +649,10 @@ export default class testScreen extends React.Component{
 
 
             </View>
-            <View style={styles.vw4}>
+            
+        </ScrollView>
+        )}
+        <View style={styles.vw4}>
                 <TouchableOpacity  onPress={()=>this.goBack(this.state.itemQ-1)} style={{display:this.state.hideBack,
                                                                                         flexDirection:'row',
                                                                                         height:'58%',
@@ -704,8 +680,6 @@ export default class testScreen extends React.Component{
                 </TouchableOpacity>
                 
             </View>
-        </ScrollView>
-        )}
         </View>
         
     </SafeAreaView>
@@ -821,6 +795,17 @@ const styles = StyleSheet.create({
         borderRadius:30,
         //borderColor:'#1CC625',
         backgroundColor:'#63cc7b',
+        alignItems:'center',
+        justifyContent:'center',
+    },
+    btnDList:{
+        borderWidth:0,
+        margin:5,
+        height:50,
+        width: 50,
+        borderRadius:30,
+        //borderColor:'#1CC625',
+        backgroundColor:'#79c98b8f',
         alignItems:'center',
         justifyContent:'center',
     },
