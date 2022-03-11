@@ -31,6 +31,8 @@ export default class luachon extends React.Component{
             leng:0,
             check:[],
             chontca:false,
+            //kiem tra xem co du lieu khong
+            kiemtradulieu:0
             };
       }
       async listenForItems(itemRef){
@@ -54,20 +56,35 @@ export default class luachon extends React.Component{
                 savet:[...this.state.savet,0],
                 borderColorC:[...this.state.borderColorC,"#ffffff00"],
                 isLoading:false,
-                check:[...this.state.check,false]
+                check:[...this.state.check,false],
+                kiemtradulieu:1,
               })
         }
          
         });
+        if(this.state.kiemtradulieu==0){
+            console.log('ok')
+            Alert.alert(
+                "Thông báo",
+                "Chưa có dữ liệu",
+                [
+                    {
+                        text: "về trang chủ",
+                        onPress: () => this.nvt.navigate('home'),
+                        style: "cancel",
+                    },
+                
+                ],
+            );
+        }
         //console.log('item:'+this.state.item);
         //console.log('length:'+this.state.leng);
     }
     nopbaia(n,a){
-
         var arr = [...this.state.check];
         arr[a] = !this.state.check[a]
         this.setState({check:arr})
-        console.log("Running, a = ",a);
+        //console.log("Running, a = ",a);
         if(this.state.savet[a]==0){
             this.state.savet[a]=n;
         }
@@ -141,7 +158,8 @@ export default class luachon extends React.Component{
     //console.log('color: ',colorsB)
     
     return (
-    <LinearGradient colors={[ '#aef6d6' , '#aef6d6' , '#aef6d6' , '#fff']} style={styles.container}>
+        <ImageBackground style={styles.container} source={{uri:'https://media.istockphoto.com/photos/open-book-hardback-books-on-wooden-table-education-background-back-picture-id591810668?k=20&m=591810668&s=612x612&w=0&h=XAE8mlyqycD2LLcptfWlaj-rXhl4JuZvohRBCI2fniU='}}>
+    <LinearGradient colors={[ '#aef6d68a' , '#aef6d68a' , '#aef6d68a' , '#fff']} style={styles.inContainer}>
         <View style = {styles.vw1}>
             
         </View>
@@ -156,9 +174,13 @@ export default class luachon extends React.Component{
                             return(
                                 <View key={n}>
                                     <CheckBox
-                                        title={<HTMLView value={this.state.item[n]}/>}
+                                        title={<View style={{flexDirection:'row'}}><View style={{width:10}}></View><HTMLView value={this.state.item[n]}/></View>}
                                         checked={this.state.check[n]}
                                         onPress={() => this.nopbaia(this.state.keys[n],n)}
+                                        size={30}
+                                        containerStyle={{borderRadius:10,backgroundColor:'#fff',borderWidth:0,borderColor:'#fff',elevation:4,}}
+                                        checkedColor='#009f00'
+                                        uncheckedColor='#009f00'
                                     />      
                                 </View>
                             )
@@ -170,6 +192,10 @@ export default class luachon extends React.Component{
                         title='Chọn tất cả'
                         checked={this.state.chontca}
                         onPress={() => this.chontc(chieudai)}
+                        size={30}
+                        containerStyle={{borderRadius:10,backgroundColor:'#fff',borderWidth:0,borderColor:'#fff',elevation:4,}}
+                        checkedColor='#009f00'
+                        uncheckedColor='#009f00'
                     />      
                 </View>
                 </View>
@@ -194,6 +220,7 @@ export default class luachon extends React.Component{
         )}
        
     </LinearGradient>
+    </ImageBackground>
 )
 
 }
@@ -206,6 +233,14 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor: '#fff',
       alignItems: 'center',
+    },
+    inContainer: {
+        width:'100%',
+        height:'100%',
+        alignItems: 'center',
+        justifyContent:'center',
+        zIndex:2,
+        padding:10,
     },
     vw1:{
         height:100,
