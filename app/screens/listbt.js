@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground,ActivityIndicator } from 'react-native';
+import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground,ActivityIndicator,Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
@@ -17,10 +17,12 @@ export default class listbt extends React.Component{
         const {listt,uid,email} = route.params;
         this.uid=uid;
         this.email=email;
-        console.log("tesst id list",listt)
+        //console.log("tesst id list",listt)
         //this.itemRef = getDatabase(firebaseApp);
         //console.log(this.itemRef);
         this.thing = listt;
+        //
+        //
         console.log("things id list",this.thing)
         this.state = {
             savet:[0,0,0,0,0,0,0],
@@ -32,6 +34,8 @@ export default class listbt extends React.Component{
             isLoading:true,
             check:[],
             chontca:false,
+            //kiem tra xem co du lieu khong
+            kiemtradulieu:0
             };
       }
       async listenForItems(itemRef){
@@ -43,7 +47,7 @@ export default class listbt extends React.Component{
         querySnapshot.forEach((doc) => {
           //console.log(`${doc.id} => ${doc.data()}`);
           //console.log(`${doc.data().Title}`);
-          console.log(`length: ${doc.data().Id_category_dvkt}`);
+          //console.log(`length: ${doc.data().Id_category_dvkt}`);
           [...Array(7)].map((o,n) => {
           if(this.thing[n]==`${doc.data().Id_category_dvkt}`){
             this.setState({
@@ -54,11 +58,29 @@ export default class listbt extends React.Component{
                 //nameqs:[...this.state.item,`${doc.data().name_Question}`],
                 leng:`${doc.id.length}`,
                 borderColorC:[...this.state.borderColorC,"#ffffff00"],
-                isLoading:false
+                isLoading:false,
+                kiemtradulieu:1,
               })
         }})
+            
          
-        });
+        }
+        );
+        if(this.state.kiemtradulieu==0){
+            console.log('ok')
+            Alert.alert(
+                "Thông báo",
+                "Chưa có dữ liệu",
+                [
+                    {
+                        text: "về trang chủ",
+                        onPress: () => this.nvt.navigate('home'),
+                        style: "cancel",
+                    },
+                
+                ],
+            );
+        }
         //console.log('item:'+this.state.item);
         //console.log('length:'+this.state.leng);
     }
@@ -131,9 +153,10 @@ export default class listbt extends React.Component{
     const colorsB = this.state.borderColorC;
     //console.log(this.state.keys);
     const chieudai = this.state.item.length;
-    console.log('chieu dai : ',chieudai);
+    //console.log('chieu dai : ',chieudai);
     return (
-    <LinearGradient colors={[ '#aef6d6' , '#aef6d6' , '#aef6d6' , '#fff']} style={styles.container}>
+        <ImageBackground style={styles.container} source={{uri:'https://media.istockphoto.com/photos/open-book-hardback-books-on-wooden-table-education-background-back-picture-id591810668?k=20&m=591810668&s=612x612&w=0&h=XAE8mlyqycD2LLcptfWlaj-rXhl4JuZvohRBCI2fniU='}}>
+    <LinearGradient colors={[ '#aef6d68a' , '#aef6d68a' , '#aef6d68a' , '#fff']} style={styles.inContainer}>
         <View style = {styles.vw1}>
         </View>
         {this.state.isLoading ? <ActivityIndicator style={styles.vw2} size="large" color="#00ff00" />:(
@@ -168,11 +191,15 @@ export default class listbt extends React.Component{
                             </View>
                             */
                             <View key={n}>
-                                
+
                                   <CheckBox
-                                        title={<HTMLView value={this.state.item[n]}/>}
+                                        title={<View style={{flexDirection:'row'}}><View style={{width:10}}></View><HTMLView value={this.state.item[n]}/></View>}
                                         checked={this.state.check[n]}
                                         onPress={() => this.nopbai(this.state.keys[n],n)}
+                                        size={30}
+                                        containerStyle={{borderRadius:10,backgroundColor:'#fff',elevation:4,borderWidth:0}}
+                                        checkedColor='#009f00'
+                                        uncheckedColor='#009f00'
                                     />      
                                                                                                              
                             </View>
@@ -188,9 +215,14 @@ export default class listbt extends React.Component{
                         title='Chọn tất cả'
                         checked={this.state.chontca}
                         onPress={() => this.chontc(chieudai)}
+                        size={30}
+                        containerStyle={{borderRadius:10,backgroundColor:'#fff',borderWidth:0,borderColor:'#ffffff00',elevation:4,}}
+                        checkedColor='#009f00'
+                        uncheckedColor='#009f00'
                     />      
                 </View>      
                 </View>
+                </ScrollView >
                 <LinearGradient  start={{x: 0, y: 0.75}} end={{x: 1, y: 0.25}} colors={[ '#6bdb91' , '#6bdb91' , '#6bdb91' , '#b9f5dc']}  style={{borderWidth:0,
                                                                                                                     height:50,
                                                                                                                     width:'95%',
@@ -205,11 +237,12 @@ export default class listbt extends React.Component{
                     </View>
                 </TouchableOpacity>      
                 </LinearGradient>
-            </ScrollView >      
+                  
         </View>
         )}
        
     </LinearGradient>
+    </ImageBackground>
 )
 
 }
@@ -222,6 +255,14 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor: '#fff',
       alignItems: 'center',
+    },
+    inContainer: {
+        width:'100%',
+        height:'100%',
+        alignItems: 'center',
+        justifyContent:'center',
+        zIndex:2,
+        padding:10,
     },
     vw1:{
         height:100,
