@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Dimensions,TouchableOpacity,ScrollView, Text, View,Button,StyleSheet,Alert,BackHandler,TouchableWithoutFeedback,SafeAreaView} from 'react-native';
 import { Icon } from 'react-native-elements';
-import { firebaseApp } from '../../components/firebaseConfig';
-import { getFirestore } from "firebase/firestore";
-import { collection, getDocs } from "firebase/firestore"; 
-import CountDown from 'react-native-countdown-component';
-import RenderHtml from 'react-native-render-html';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RadioButtons,SegmentedControls } from 'react-native-radio-buttons';
 import HTMLView from 'react-native-htmlview';
-
+import {
+    AdMobBanner,
+    AdMobInterstitial,
+    PublisherBanner,
+    AdMobRewarded,
+  } from 'expo-ads-admob'
 
 const Stack = createNativeStackNavigator();
 
@@ -62,6 +62,7 @@ export default class xemlai extends React.Component{
     };
 
     }
+    
     dvt(){
         for(var n=0;n<this.state.item.length;n++){
             for(var m=0;m<this.state.item.length;m++){
@@ -234,9 +235,11 @@ export default class xemlai extends React.Component{
                   })
             }
     }
-    componentDidMount(){
-
+    async componentDidMount(){
         this.listenForItems(1);
+        AdMobInterstitial.setAdUnitID("ca-app-pub-3940256099942544/1033173712" );
+        await AdMobInterstitial.requestAdAsync({servePersonalizedAds: false});
+        await AdMobInterstitial.showAdAsync();
     }
 
   render(){
@@ -470,7 +473,7 @@ export default class xemlai extends React.Component{
                                                                                             flexDirection:'row',
                                                                                             marginBottom:'6%'}}>
                                         <Text style={styles.abcd}></Text>
-                                        <View style={{top:5,}}>
+                                        <View style={{top:5}}>
                                         <HTMLView
                                             stylesheet={this.tagsStylesC}
                                             value={option}
@@ -490,7 +493,9 @@ export default class xemlai extends React.Component{
 
 
             </View>
-            <View style={styles.vw4}>
+            
+        </ScrollView>
+        <View style={styles.vw4}>
                 <TouchableOpacity  onPress={()=>this.goBack(this.state.itemQ-1)} style={{display:this.state.hideBack,
                                                                                         flexDirection:'row',
                                                                                         height:'58%',
@@ -527,7 +532,6 @@ export default class xemlai extends React.Component{
                 </TouchableOpacity>
                 
             </View>
-        </ScrollView>
         </View>
     </SafeAreaView>
 )
@@ -536,11 +540,6 @@ export default class xemlai extends React.Component{
 
 };
 
-
-const html = StyleSheet.create({
-    span:{
-    }
-})
 const styles = StyleSheet.create({
     container: {
       flex: 1,
