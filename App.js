@@ -23,7 +23,6 @@ import ketqua from './app/screens/ketqua';
 import xemlai from './app/screens/xemlaibaitest';
 //test
 import testTimer from './app/screens/testTimer';
-import Option from './app/screens/optiontest';
 //dang nhap dang ki
 import LoginScreen from './app/screens/dangnhap';
 import SignUpScreen from './app/screens/dangki';
@@ -32,10 +31,9 @@ import luachon from './app/screens/luachon';
 //
 import listbt from './app/screens/listbt';
 //
-import Loading from './app/screens/Loading';
-import Main from './app/screens/Main';
-import Login from './app/screens/Login';
-import SignUp from './app/screens/SignUp';
+import ProfileScreen from './app/screens/userInfo';
+//
+import gioiThieu from './app/screens/gioithieu';
 
 const Stack = createNativeStackNavigator();
 //set màu cho screen
@@ -46,10 +44,9 @@ const navTheme = {
     background: 'red',
   },
 };
+
 export default class App  extends React.Component {
-  
   render(){
-    
     return (
       <NavigationContainer>
         <Stack.Navigator  initialRouteName='front' screenOptions={{headerShown: true}}>
@@ -68,19 +65,19 @@ export default class App  extends React.Component {
                           </TouchableOpacity>)
           }} />
           <Stack.Screen name = "tm" component = {testTimer} options={{headerShown: false}} />
-          <Stack.Screen name = "op" component = {Option} options={{headerShown: false}} />
           <Stack.Screen name = "btab" component = {bTabs} options={{headerShown: false}} />
           <Stack.Screen name = "kq" component = {ketqua} options={{headerShown: false}} />
           <Stack.Screen name = "xemLaiTestScreen" component = {xemlai} options={{headerShown: false}} />
           <Stack.Screen name = "dangnhap" component = {LoginScreen} options={{headerShown: true,title:'',headerTransparent:true,headerShadowVisible:false,headerTintColor:'white'}} />
           <Stack.Screen name = "dangky" component = {SignUpScreen} options={{headerShown: true,title:'',headerTransparent:true,headerShadowVisible:false,headerTintColor:'white'}} />
-          <Stack.Screen name = "luachon" component = {luachon} options={{headerShown: false}} />
-          <Stack.Screen name = "listbt" component = {listbt} options={{headerShown: false}} />
+          <Stack.Screen name = "luachon" component = {luachon} options={{headerShown: true,title:'Kiến thức cần thiết cho bạn',headerTransparent:true,headerShadowVisible:false,headerTintColor:'#009f00'}} />
+          <Stack.Screen name = "listbt" component = {listbt} options={{headerShown: true,title:'Chi tiết',headerTransparent:true,headerShadowVisible:false,headerTintColor:'#009f00'}} />
 
-          <Stack.Screen name = "ld" component = {Loading} options={{headerShown: false}} />
-          <Stack.Screen name = "Main" component = {Main} options={{headerShown: false}} />
-          <Stack.Screen name = "su" component = {SignUp} options={{headerShown: false}} />
-          <Stack.Screen name = "lg" component = {Login} options={{headerShown: false}} />
+
+          <Stack.Screen name = "ps" component = {ProfileScreen} options={{headerShown: true,title:'',headerTransparent:true,headerShadowVisible:false,headerTintColor:'white'}}  />
+          
+          <Stack.Screen name = "gioithieu" component = {gioiThieu} options={{headerShown: true,title:'',headerTransparent:true,headerShadowVisible:false,headerTintColor:'white'}}  />
+
 
         </Stack.Navigator>
         
