@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "appe",
+    "description": "some description about our project",
     "slug": "appe",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,16 +18,23 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.johncy.myapp"
     },
     "android": {
+      "package": "com.johncy.myapp",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
+      },
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-6851800445634158~3575687852" 
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     }
   }
+  
 }
