@@ -8,6 +8,7 @@ import { collection, getDocs } from "firebase/firestore";
 import HTMLView from 'react-native-htmlview';
 import { CheckBox} from 'react-native-elements';
 
+import * as Animatable from 'react-native-animatable';
 
 export default class listbt extends React.Component{ 
     constructor(props) {
@@ -25,7 +26,7 @@ export default class listbt extends React.Component{
         //
         console.log("things id list",this.thing)
         this.state = {
-            savet:[0,0,0,0,0,0,0],
+            savet:[],
             keys:[],
             item:[],
             nameqs:[],
@@ -33,7 +34,7 @@ export default class listbt extends React.Component{
             borderColorC:[],
             isLoading:true,
             check:[],
-            chontca:false,
+            chontca:true,
             //kiem tra xem co du lieu khong
             kiemtradulieu:0
             };
@@ -56,16 +57,17 @@ export default class listbt extends React.Component{
                 keys:[...this.state.keys,`${doc.id}`],
                 item:[...this.state.item,`${doc.data().Name}`],
                 //nameqs:[...this.state.item,`${doc.data().name_Question}`],
+                savet:[...this.state.savet,`${doc.id}`],
+                check:[...this.state.check,true],
                 leng:`${doc.id.length}`,
                 borderColorC:[...this.state.borderColorC,"#ffffff00"],
                 isLoading:false,
                 kiemtradulieu:1,
               })
         }})
-            
-         
         }
         );
+        
         if(this.state.kiemtradulieu==0){
             console.log('ok')
             Alert.alert(
@@ -74,7 +76,7 @@ export default class listbt extends React.Component{
                 [
                     {
                         text: "về trang chủ",
-                        onPress: () => this.nvt.navigate('home'),
+                        onPress: () => this.nvt.navigate('home',{uid:this.uid,email:this.email}),
                         style: "cancel",
                     },
                 
@@ -86,7 +88,8 @@ export default class listbt extends React.Component{
     }
     nopbai(n,a){
         var arr = [...this.state.check];
-        arr[a] = !this.state.check[a]
+        arr[a] = !this.state.check[a];
+        let dem=0;
         this.setState({check:arr})
         console.log("Running, a = ",a);
         if(this.state.savet[a]==0){
@@ -95,6 +98,16 @@ export default class listbt extends React.Component{
         else{
             this.state.chontca=false
             this.state.savet[a]=0;
+        }
+        //chon tat ca = true neu tat ca duoc tich
+        [...Array(this.state.item.length)].map((o,n) => {
+            if(this.state.savet[n]==0){
+                dem++;
+            }
+        })
+        //
+        if(dem==0){
+            this.state.chontca=true
         }
         console.log('savet: ',this.state.savet);
         //console.log('check: ',this.state.check);
@@ -141,7 +154,7 @@ export default class listbt extends React.Component{
                 ],
             );
         }else{
-            this.nvt.navigate('menuScreen',{id:this.state.savet,ten:this.state.item,uid:this.uid,email:this.email})
+            this.nvt.navigate('menuScreen',{id:this.state.savet,ten:this.state.item,uid:this.uid,email:this.email,})
         }
         
     }
@@ -154,6 +167,27 @@ export default class listbt extends React.Component{
     //console.log(this.state.keys);
     const chieudai = this.state.item.length;
     //console.log('chieu dai : ',chieudai);
+    const fadeIn = {
+        from: {
+          opacity: 0,
+          left:300,
+        },
+        to: { 
+          opacity: 1,
+          left:0
+        },
+    }; 
+    const fadeInLast = {
+        from: {
+          opacity: 0,
+          
+          left:700,
+        },
+        to: { 
+          opacity: 1,
+          left:0
+        },
+    }; 
     return (
         <ImageBackground style={styles.container} source={{uri:'https://media.istockphoto.com/photos/open-book-hardback-books-on-wooden-table-education-background-back-picture-id591810668?k=20&m=591810668&s=612x612&w=0&h=XAE8mlyqycD2LLcptfWlaj-rXhl4JuZvohRBCI2fniU='}}>
     <LinearGradient colors={[ '#aef6d68a' , '#aef6d68a' , '#aef6d68a' , '#fff']} style={styles.inContainer}>
@@ -163,7 +197,8 @@ export default class listbt extends React.Component{
         <View style={styles.vw2}>
             <ScrollView  showsVerticalScrollIndicator={false}>
                 <View style={{height:80,}}></View>
-                <View style={styles.content} >
+                
+                <View style={{width:windowWidth-20}} >
                 {
                     //Số hàng ngang
                     [...Array(chieudai)].map((o,n) => {
@@ -190,7 +225,8 @@ export default class listbt extends React.Component{
                                 }
                             </View>
                             */
-                            <View key={n}>
+                            <Animatable.Text animation={fadeIn} style={{width: windowWidth,}} key={n} >
+                            <View key={n} style={{width:windowWidth}}>
 
                                   <CheckBox
                                         title={<View style={{flexDirection:'row'}}><View style={{width:10}}></View><HTMLView value={this.state.item[n]}/></View>}
@@ -203,24 +239,28 @@ export default class listbt extends React.Component{
                                     />      
                                                                                                              
                             </View>
+                            </Animatable.Text>
                         )
                     }
                     )
                 }
                 
                 </View>
-                <View >
-                <View >
-                    <CheckBox
-                        title='Chọn tất cả'
-                        checked={this.state.chontca}
-                        onPress={() => this.chontc(chieudai)}
-                        size={30}
-                        containerStyle={{borderRadius:10,backgroundColor:'#fff',borderWidth:0,borderColor:'#ffffff00',elevation:4,}}
-                        checkedColor='#009f00'
-                        uncheckedColor='#009f00'
-                    />      
-                </View>      
+                
+                <View style={{width:windowWidth-20}}>
+                    <Animatable.Text animation={fadeInLast} style={{width: windowWidth,}}>
+                        <View style={{width:windowWidth}}>
+                            <CheckBox
+                                title='Chọn tất cả'
+                                checked={this.state.chontca}
+                                onPress={() => this.chontc(chieudai)}
+                                size={30}
+                                containerStyle={{borderRadius:10,backgroundColor:'#fff',borderWidth:0,borderColor:'#ffffff00',elevation:4,}}
+                                checkedColor='#009f00'
+                                uncheckedColor='#009f00'
+                            />      
+                        </View>      
+                    </Animatable.Text>
                 </View>
                 </ScrollView >
                 <LinearGradient  start={{x: 0, y: 0.75}} end={{x: 1, y: 0.25}} colors={[ '#6bdb91' , '#6bdb91' , '#6bdb91' , '#b9f5dc']}  style={{borderWidth:0,
