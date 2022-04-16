@@ -34,18 +34,24 @@ export default class SignUpScreen extends React.Component{
         console.log('handleSignUp')
         const auth = getAuth(firebaseApp);
         console.log(auth);
+
+
+        let regExp = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
         if(this.state.repass!=='' && this.state.email!=='' && this.state.password!==''){
+            if(this.state.email.match(regExp)){
             if(this.state.password == this.state.repass){
                 try{
                     if(this.state.password.length<6){
-                        Alert.alert("Yeu cau mat khau nhieu hon 6 ky tu.")
+                        Alert.alert("Yêu cầu mật khẩu nhiều hơn 6 ký tự.")
                         return;
                     }
+                
                 createUserWithEmailAndPassword(auth, this.state.email, this.state.password)
                 .then((userCredential) => {
                     Alert.alert(
                     "Alert Title",
-                    "Dang ky thanh cong",
+                    "Đăng ký thành công!",
                     [
                         {
                         text: "Cancel",
@@ -89,6 +95,19 @@ export default class SignUpScreen extends React.Component{
         }else{
             Alert.alert(
                 "Nhắc nhở",
+                "Vui lòng viết đúng định dạng email",
+                [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                }
+                ]
+            );
+        }
+    }else{
+            Alert.alert(
+                "Nhắc nhở",
                 "Vui lòng điền đầy đủ thông tin",
                 [
                 {
@@ -114,6 +133,7 @@ export default class SignUpScreen extends React.Component{
             })
         }
     }
+
     render(){
         const { navigation } = this.props;
     return(
@@ -156,7 +176,7 @@ export default class SignUpScreen extends React.Component{
                    
                 </View>
                 <TouchableOpacity  onPress={()=>navigation.navigate('dangnhap')}>
-                    <Text style={{color:'white',fontSize:15,fontWeight:'bold',marginTop:20,}}>Da có tài khoản? Đăng nhap ngay!</Text>
+                    <Text style={{color:'white',fontSize:15,fontWeight:'bold',marginTop:20,}}>Đã có tài khoản? Đăng nhập ngay!</Text>
                 </TouchableOpacity>
             </View>
 
