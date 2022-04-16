@@ -2,18 +2,20 @@ import React, { useState } from 'react';
 import { Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons'; 
 import { LinearGradient } from 'expo-linear-gradient';
-
+import * as Animatable from 'react-native-animatable';
 
 export default class DanhSach extends React.Component{ 
     
   render(){
     const { navigation } = this.props;
     return (
-    <LinearGradient colors={[ '#6bdb91' , '#6bdb91' , '#73e9bb' , '#b9f5dc']} style={styles.container}>
-        <View style = {{flex:5,width:'100%',alignItems:'center',justifyContent:'center'}}>
-
-            <Text style={{color:'#fff',fontSize:50}}>Learn English</Text>
-        </View>
+    <ImageBackground style = {styles.vw1a} source={{uri:'https://w0.peakpx.com/wallpaper/194/510/HD-wallpaper-just-study-saying.jpg'}}>
+    <LinearGradient colors={[ '#6bdb919e' , '#6bdb919e' , '#73e9bb9e' , '#b9f5dc9e']} style={styles.container}>
+        <View style = {{flex:5,width:'100%',alignItems:'center',top:100}}>
+            <Animatable.Text animation="slideInDown" iterationCount={1} direction="alternate">
+                <Text style={{color:'#fff',fontSize:50,}}>Learn English</Text>
+            </Animatable.Text>
+        </View> 
         <View style={{flex:3,width:'100%',alignItems:'center',justifyContent:'center',justifyContent:'flex-end'}}>
             <TouchableHighlight style={styles.btnStart} onPress={()=>navigation.navigate('home',{uid:'0',email:'Anonymous'})} underlayColor="white">
                 <View>
@@ -28,15 +30,22 @@ export default class DanhSach extends React.Component{
         </View>
         
     </LinearGradient>
+    </ImageBackground>
 )
-}};
+}}; 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent:'center',
-    },
+        flex: 1,
+        alignItems: 'center',
+        justifyContent:'center',
+      },
+      vw1a:{
+          height:'100%',
+          width:'100%',
+          zIndex:100,
+          flexDirection:'column',
+          borderRadius:20,
+      },
     btnStart: {
         marginBottom: 20,
         width: '90%',
@@ -60,7 +69,7 @@ const styles = StyleSheet.create({
     btnTextStart: {
         textAlign: 'center',
         color: 'white',
-        fontSize:20,
+        fontSize:18,
     },
     btnTextLoggin: {
         textAlign: 'center',
