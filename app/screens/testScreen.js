@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { doc, setDoc } from "firebase/firestore"; 
 import HTMLView from 'react-native-htmlview';
 
+import * as Animatable from 'react-native-animatable';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,9 +24,11 @@ export default class testScreen extends React.Component{
         //console.log(this.itemRef);
         const { route,navigation } = this.props;
         this.nvt = navigation;
-        const { baitap,n,ten,uid,email,itemK,nameqs,item,opt0,opt1,opt2,opt3,trueAns} = route.params;
+        const { baitap,n,ten,uid,email,itemK,nameqs,item,opt0,opt1,opt2,opt3,trueAns,socau} = route.params;
         //console.log('baitap:',opt0);
         console.log('uid form test:',uid)
+
+        //doi mau
         this.tagsStyles = {
             span: {
               color:'black',
@@ -44,13 +47,19 @@ export default class testScreen extends React.Component{
                 fontSize:17,
               },
           }
+        //
+        //khai bao cac bien
         this.uid=uid;
         this.email=email;
         this.i = baitap;
         this.detai= ten;
         this.num = n;
         this.diems = 0;
+        //
+
+        //state
         this.state = {
+            socau:socau,
             isLoading:true,
             hideBack:'flex',
             hideNext:'flex',
@@ -79,9 +88,8 @@ export default class testScreen extends React.Component{
             optList:[],
             o:['','','',''],
             ans:'',
-            answ:[0,0,0,0,0,0,0,0,0,0],
+            answ:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         };
-
         
         this.opt = this.state.options;
       }
@@ -389,7 +397,7 @@ export default class testScreen extends React.Component{
                             this.dvt();
                             //console.log('diem: ',this.diems);
                             //console.log("da lam: ",this.state.answ);
-                            this.nvt.navigate('kq',{diem:this.diems,item:this.state.item,itemK:this.state.itemK,ds:this.state.o,bailam:this.state.answ,cauhoi:this.state.nameqs,d0:this.state.opt0,d1:this.state.opt1,d2:this.state.opt2,d3:this.state.opt3,dapan:this.state.trueAns});
+                            this.nvt.navigate('kq',{diem:this.diems,item:this.state.item,itemK:this.state.itemK,ds:this.state.o,bailam:this.state.answ,cauhoi:this.state.nameqs,d0:this.state.opt0,d1:this.state.opt1,d2:this.state.opt2,d3:this.state.opt3,dapan:this.state.trueAns,socau:this.state.socau,uid:this.uid,email:this.email});
                     },
                     style: "cancel",
                 },
@@ -483,7 +491,7 @@ export default class testScreen extends React.Component{
     const { baitap,name} = route.params;
     const i = baitap;
     var l = this.state.itemQ;
-    
+    console.log('answ: ',this.state.answ[this.state.itemQ])
     const question = {html: this.state.q};
     const questiona = this.state.q
     //console.log(this.tagsStyles);
@@ -492,6 +500,16 @@ export default class testScreen extends React.Component{
     //console.log('o:',this.state.o);
     //console.log('o:',this.state.o)
 
+    const duoilentren = {
+        from: {
+          opacity: 0,
+          top:700,
+        },
+        to: { 
+          opacity: 1,
+          top:0
+        },
+      }; 
 
     if(l==1){
         this.state.hideBack='none';
@@ -505,6 +523,8 @@ export default class testScreen extends React.Component{
         
         
     <SafeAreaView style={styles.container}>
+        <Animatable.Text animation={duoilentren} style={{width: windowWidth,}} >
+        <View style={{width:windowWidth,height:windowHeight}}>
         <View style={styles.vw1}>
 
             <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',margin:10,}}>
@@ -535,7 +555,7 @@ export default class testScreen extends React.Component{
             <ScrollView  horizontal={true} showsHorizontalScrollIndicator={false} >
                 {
                             
-                    [...Array(10)].map((o,n) => {
+                    [...Array(this.state.socau)].map((o,n) => {
                         
                         if(n+1==l){
                             return(
@@ -681,7 +701,8 @@ export default class testScreen extends React.Component{
                 
             </View>
         </View>
-        
+        </View>
+        </Animatable.Text>
     </SafeAreaView>
 )
 }
