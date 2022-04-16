@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { Dimensions,Animated,TouchableOpacity,TouchableHighlight,ScrollView, Text, View,Button,StyleSheet,Image,ImageBackground,Alert,ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
@@ -8,8 +8,10 @@ import { collection, getDocs } from "firebase/firestore";
 import HTMLView from 'react-native-htmlview';
 import { CheckBox} from 'react-native-elements';
 
+import * as Animatable from 'react-native-animatable';
 
 export default class luachon extends React.Component{ 
+    
     constructor(props) {
         super(props);
         const { route,navigation } = this.props;
@@ -30,7 +32,7 @@ export default class luachon extends React.Component{
             nameqs:[],
             leng:0,
             check:[],
-            chontca:false,
+            chontca:true,
             //kiem tra xem co du lieu khong
             kiemtradulieu:0
             };
@@ -53,13 +55,14 @@ export default class luachon extends React.Component{
                 item:[...this.state.item,`${doc.data().Name}`],
                 //nameqs:[...this.state.item,`${doc.data().name_Question}`],
                 leng:`${doc.id.length}`,
-                savet:[...this.state.savet,0],
+                savet:[...this.state.savet,`${doc.id}`],
                 borderColorC:[...this.state.borderColorC,"#ffffff00"],
                 isLoading:false,
-                check:[...this.state.check,false],
+                check:[...this.state.check,true],
                 kiemtradulieu:1,
               })
         }
+        
          
         });
         if(this.state.kiemtradulieu==0){
@@ -70,7 +73,7 @@ export default class luachon extends React.Component{
                 [
                     {
                         text: "về trang chủ",
-                        onPress: () => this.nvt.navigate('home'),
+                        onPress: () => this.nvt.navigate('home',{uid:this.uid,email:this.email}),
                         style: "cancel",
                     },
                 
@@ -79,18 +82,32 @@ export default class luachon extends React.Component{
         }
         //console.log('item:'+this.state.item);
         //console.log('length:'+this.state.leng);
+        
+        
     }
     nopbaia(n,a){
         var arr = [...this.state.check];
-        arr[a] = !this.state.check[a]
+        arr[a] = !this.state.check[a];
+        let dem = 0;
         this.setState({check:arr})
         //console.log("Running, a = ",a);
+        //gan gia tri khi duoc tich va gan gia tri = 0 khi khong duoc tich
         if(this.state.savet[a]==0){
             this.state.savet[a]=n;
         }
         else{
             this.state.chontca=false
             this.state.savet[a]=0;
+        }
+        //chon tat ca = true neu tat ca duoc tich
+        [...Array(this.state.item.length)].map((o,n) => {
+            if(this.state.savet[n]==0){
+                dem++;
+            }
+        })
+        //
+        if(dem==0){
+            this.state.chontca=true
         }
         console.log('savet: ',this.state.savet);
         //console.log('check: ',this.state.check);
@@ -112,7 +129,7 @@ export default class luachon extends React.Component{
             })
         }
         this.setState({check:arr})
-        this.state.chontca = !this.state.chontca;
+        this.state.chontca =! this.state.chontca;
         console.log('savet: ',this.state.savet);
     }
     btntieptuc(svet,cd){
@@ -144,9 +161,11 @@ export default class luachon extends React.Component{
     componentDidMount(){
 
         this.listenForItems();
+        
     }
     
   render(){
+    
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const { navigation } = this.props;
@@ -156,7 +175,29 @@ export default class luachon extends React.Component{
     const colorsB = this.state.borderColorC;
     //console.log('chieu dai : ',chieudai);
     //console.log('color: ',colorsB)
-    
+    const fadeIn = {
+        from: {
+          opacity: 0,
+          
+          left:300,
+        },
+        to: { 
+          opacity: 1,
+          left:0
+        },
+    }; 
+
+    const fadeInLast = {
+        from: {
+          opacity: 0,
+          
+          left:700,
+        },
+        to: { 
+          opacity: 1,
+          left:0
+        },
+    }; 
     return (
         <ImageBackground style={styles.container} source={{uri:'https://media.istockphoto.com/photos/open-book-hardback-books-on-wooden-table-education-background-back-picture-id591810668?k=20&m=591810668&s=612x612&w=0&h=XAE8mlyqycD2LLcptfWlaj-rXhl4JuZvohRBCI2fniU='}}>
     <LinearGradient colors={[ '#aef6d68a' , '#aef6d68a' , '#aef6d68a' , '#fff']} style={styles.inContainer}>
@@ -167,39 +208,45 @@ export default class luachon extends React.Component{
         <View style={styles.vw2}>
         <ScrollView style={{}} showsVerticalScrollIndicator={false}>
                 <View style={{height:80,}}></View>
-                <View style={styles.content} >
-                {
-                    //Số hàng ngang
-                    [...Array(chieudai)].map((o,n) => {
-                            return(
-                                <View key={n}>
-                                    <CheckBox
-                                        title={<View style={{flexDirection:'row'}}><View style={{width:10}}></View><HTMLView value={this.state.item[n]}/></View>}
-                                        checked={this.state.check[n]}
-                                        onPress={() => this.nopbaia(this.state.keys[n],n)}
-                                        size={30}
-                                        containerStyle={{borderRadius:10,backgroundColor:'#fff',borderWidth:0,borderColor:'#fff',elevation:4,}}
-                                        checkedColor='#009f00'
-                                        uncheckedColor='#009f00'
-                                    />      
-                                </View>
-                            )
-                        }
-                    )
-                }
-                <View >
-                    <CheckBox
-                        title='Chọn tất cả'
-                        checked={this.state.chontca}
-                        onPress={() => this.chontc(chieudai)}
-                        size={30}
-                        containerStyle={{borderRadius:10,backgroundColor:'#fff',borderWidth:0,borderColor:'#fff',elevation:4,}}
-                        checkedColor='#009f00'
-                        uncheckedColor='#009f00'
-                    />      
-                </View>
-                </View>
                 
+                    <View style={{width: windowWidth-20,}} >
+                    {
+                        //Số hàng ngang
+                        [...Array(chieudai)].map((o,n) => {
+                                
+                                return( 
+                                    <Animatable.Text animation={fadeIn} style={{width: windowWidth,}} key={n} >
+                                        <View key={n} style={{width: windowWidth-20,}}>
+                                            
+                                            <CheckBox
+                                                title={<View style={{flexDirection:'row'}}><View style={{width:10}}></View><HTMLView value={this.state.item[n]}/></View>}
+                                                checked={this.state.check[n]}
+                                                onPress={() => this.nopbaia(this.state.keys[n],n)}
+                                                size={30}
+                                                containerStyle={{borderRadius:10,backgroundColor:'#fff',borderWidth:0,borderColor:'#fff',elevation:4,}}
+                                                checkedColor='#009f00'
+                                                uncheckedColor='#009f00'
+                                            />      
+                                        </View>
+                                    </Animatable.Text>
+                                )
+                            }
+                        )
+                    }  
+                    <Animatable.Text animation={fadeInLast} style={{width: windowWidth,}}  >
+                        <View style={{width:windowWidth-20}}> 
+                            <CheckBox 
+                                title='Chọn tất cả'
+                                checked={this.state.chontca}
+                                onPress={() => this.chontc(chieudai)}
+                                size={30}
+                                containerStyle={{borderRadius:10,backgroundColor:'#fff',borderWidth:0,borderColor:'#fff',elevation:4,}}
+                                checkedColor='#009f00'
+                                uncheckedColor='#009f00'
+                            />      
+                        </View>
+                    </Animatable.Text>
+                    </View>
             </ScrollView >
             <LinearGradient  start={{x: 0, y: 0.75}} end={{x: 1, y: 0.25}} colors={[ '#6bdb91' , '#6bdb91' , '#6bdb91' , '#b9f5dc']}  style={{borderWidth:0,
                                                                                                                     height:50,
