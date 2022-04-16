@@ -57,3 +57,10 @@ Update(03/21/2022)
 
 - Add admob, and some other updates
 
+
+Update(04/16/2022)
+
+
+- Update the interface
+- Check email in from dangky
+- ...
