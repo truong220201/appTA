@@ -7,6 +7,14 @@ import { doc, setDoc } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore"; 
 import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
+import {
+    AdMobBanner,
+    AdMobInterstitial,
+    PublisherBanner,
+    AdMobRewarded,
+  } from 'expo-ads-admob'
+
+import * as Animatable from 'react-native-animatable';
 
 export default class huongdan extends React.Component{ 
     constructor(props) {
@@ -15,9 +23,9 @@ export default class huongdan extends React.Component{
         //console.log(this.itemRef);
         const { route,navigation } = this.props;
         this.nvt = navigation;
-        const { baitap,name,n,ten,uid,email} = route.params;
+        const { baitap,name,n,ten,uid,email,socau,tg} = route.params;
         const { loaiId,id} = route.params;
-        //console.log('baitap:',id);
+        console.log('baitap:',socau);
         //console.log('uid form test:',uid)
 
 
@@ -28,6 +36,8 @@ export default class huongdan extends React.Component{
         this.num = n;
         this.diems = 0;
         this.state = {
+            socau:socau,
+            tg:tg,
             isLoading:true,
             hideBack:'flex',
             hideNext:'flex',
@@ -80,6 +90,12 @@ export default class huongdan extends React.Component{
                     })
                     //console.log('length item k: ',this.state.itemK.length);
                 }
+                else if(this.i[n] == 1){
+                    this.setState({
+                        itemK:[...this.state.itemK,`${doc.id}`],
+                        nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
+                    })
+                }
             })
             
         })
@@ -87,7 +103,8 @@ export default class huongdan extends React.Component{
         
         this.shuffle(this.state.itemK,this.state.nameqs)
     }
-    
+
+    //lay item tu option 
     async listenForItems(inum){
         
         const db = getFirestore(firebaseApp);
@@ -141,6 +158,7 @@ export default class huongdan extends React.Component{
         this.listenForItems();
     }
 
+    // random cau hoi/ tra loi
     shuffle(arraya,arrayb) {
         let currentIndex = arraya.length,  randomIndex;
       
@@ -177,6 +195,26 @@ export default class huongdan extends React.Component{
     
     //console.log('item :',this.state.item)
 
+    const tsp = {
+        from: {
+          opacity: 0,
+          //left:700,
+        },
+        to: { 
+          opacity: 1,
+          //left:0
+        },
+      }; 
+      const pst = {
+        from: {
+          opacity: 0,
+          //left:-700,
+        },
+        to: { 
+          opacity: 1,
+          //left:0
+        },
+      }; 
 
     return (
     <View style={styles.container}>
@@ -184,24 +222,39 @@ export default class huongdan extends React.Component{
             <Text style={styles.txtTitle}>Quy định làm bài</Text>
         </View>
         <View style={styles.vw2}>
-            <View style={styles.yellowView}>
-                <View style={styles.iconA}>
-                    <Icon name = {'lock-clock'} size={40} color={'orange'} />
+            <Animatable.Text animation={pst} style={styles.yellowView} >
+                <View style={{flex:1,
+                        height:'60%',
+                        margin:10,
+                        borderRadius:20,
+                        flexDirection:'row',
+                        padding: 10,}}>
+                    <View style={styles.iconA}>
+                        <Icon name = {'lock-clock'} size={40} color={'orange'} />
+                    </View>
+                    <View style={styles.contentA}> 
+                        <Text style={styles.txtA}>Thời gian</Text>
+                        <Text style={styles.txtB}>{this.state.tg} Phút</Text>
+                    </View>
                 </View>
-                <View style={styles.contentA}>
-                    <Text style={styles.txtA}>Thời gian</Text>
-                    <Text style={styles.txtB}>15 Phút</Text>
-                </View>
-            </View>
-            <View style={styles.blueView}>
+            </Animatable.Text>
+            <Animatable.Text animation={tsp} style={styles.blueView} >
+            <View style={{flex:1,
+                    height:'60%',
+                    borderColor:'#4c93f9',
+                    margin:10,
+                    borderRadius:20,
+                    flexDirection:'row',
+                    padding: 10,}}>
                 <View style={styles.iconA}>
                     <Icon name = {'contact-support'} size={40} color={'#4c93f9'} />
                 </View>
                 <View style={styles.contentA}>
                     <Text style={styles.txtA}>Số câu</Text>
-                    <Text style={styles.txtB}>10</Text>
+                    <Text style={styles.txtB}>{this.state.socau}</Text>
                 </View>
             </View>
+            </Animatable.Text>
         </View>
         <View style={styles.vw3}>
             <View style={styles.contentView}>
@@ -215,9 +268,15 @@ export default class huongdan extends React.Component{
                     <Text style={styles.txtD}>3. Nộp bài để nhận kết quả</Text>
                 </View>
             </View>
+            <AdMobBanner
+      bannerSize="fullBanner"
+      adUnitID="ca-app-pub-6851800445634158/6549335557" // Test ID, Replace with your-admob-unit-id
+      servePersonalizedAds ={false}
+       />
         </View>
+
         <View style={styles.vw4}>
-            <TouchableOpacity onPress={()=>navigation.navigate('testScreen',{baitap: id,n:1,ten:ten,uid:uid,email:email,itemK:this.state.itemK,nameqs:this.state.nameqs,item:this.state.item,opt0:this.state.opt0,opt1:this.state.opt1,opt2:this.state.opt2,opt3:this.state.opt3,trueAns:this.state.trueAns})} style={styles.btnStart}>
+            <TouchableOpacity onPress={()=>navigation.navigate('testScreen',{baitap: id,n:1,ten:ten,uid:uid,email:email,itemK:this.state.itemK,nameqs:this.state.nameqs,item:this.state.item,opt0:this.state.opt0,opt1:this.state.opt1,opt2:this.state.opt2,opt3:this.state.opt3,trueAns:this.state.trueAns,socau:this.state.socau})} style={styles.btnStart}>
                 <Text style={styles.txtStart}>Làm bài</Text>
             </TouchableOpacity>
         </View>
