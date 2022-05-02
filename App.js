@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import front from './app/screens/front';
 import chontrinhdo from './app/screens/chontrinhdo';
-//layer trang chủ 
+//layer trang chủ              
 import Home from './app/screens/Home';
 //layer sau khi ấn vào từng danh mục tại menu
 import menuScreen from './app/screens/menuScreen';
