@@ -49,7 +49,8 @@ Verson:1.4 (03/11/2022)
 - The button does not move during the test
 - Change and update the interface of the form Home, luachon, listbt
 - Hide/show password for login and registration form
-- And some other updates...
+- And some other updates....
+
 
 
 Update(03/21/2022)
