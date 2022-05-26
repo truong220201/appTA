@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { Dimensions,TouchableOpacity,ScrollView, Text, View,Button,StyleSheet,Alert,BackHandler,ActivityIndicator,SafeAreaView} from 'react-native';
+import { Dimensions,TouchableOpacity,ScrollView, Text, View,Button,StyleSheet,Alert,BackHandler,ActivityIndicator,SafeAreaView,Image} from 'react-native';
 import { Icon } from 'react-native-elements';
 import { firebaseApp } from '../../components/firebaseConfig';
 import { getFirestore } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore"; 
 import CountDown from 'react-native-countdown-component';
-import RenderHtml from 'react-native-render-html';
+
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RadioButtons,SegmentedControls } from 'react-native-radio-buttons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { doc, setDoc } from "firebase/firestore"; 
+
+
 import HTMLView from 'react-native-htmlview';
+import RenderHTML from 'react-native-render-html';
+import { WebView } from 'react-native-webview';
+
 
 import * as Animatable from 'react-native-animatable';
 
@@ -24,7 +29,7 @@ export default class testScreen extends React.Component{
         //console.log(this.itemRef);
         const { route,navigation } = this.props;
         this.nvt = navigation;
-        const { baitap,n,ten,uid,email,itemK,nameqs,item,opt0,opt1,opt2,opt3,trueAns,socau} = route.params;
+        const { baitap,n,ten,uid,email,itemK,nameqs,item,opt0,opt1,opt2,opt3,trueAns,socau,tg} = route.params;
         //console.log('baitap:',opt0);
         console.log('uid form test:',uid)
 
@@ -75,6 +80,7 @@ export default class testScreen extends React.Component{
             opt3:opt3,
             itemK:itemK,
             nameqs:nameqs,
+            tgian:tg,
             leng:0,
             trueAns:trueAns,
             //test
@@ -379,38 +385,43 @@ export default class testScreen extends React.Component{
 
 
     //su kien nut nop bai
-    nopbai(){
-        Alert.alert(
-            "Nhắc nhở",
-            "Bạn muốn nộp bài?",
-            [
-                {
-                    text: "Không",
-                    onPress: () => null,
-                    style: "cancel",
-                },
-                {
-                    text: "Có",
-                    onPress: ()=>{
-                        this.getUser(this.uid);
-                            console.log("nop bai");
-                            this.dvt();
-                            //console.log('diem: ',this.diems);
-                            //console.log("da lam: ",this.state.answ);
-                            this.nvt.navigate('kq',{diem:this.diems,item:this.state.item,itemK:this.state.itemK,ds:this.state.o,bailam:this.state.answ,cauhoi:this.state.nameqs,d0:this.state.opt0,d1:this.state.opt1,d2:this.state.opt2,d3:this.state.opt3,dapan:this.state.trueAns,socau:this.state.socau,uid:this.uid,email:this.email});
+    nopbai(y){
+        if(y==true){
+            this.nvt.navigate('kq',{diem:this.diems,item:this.state.item,itemK:this.state.itemK,ds:this.state.o,bailam:this.state.answ,cauhoi:this.state.nameqs,d0:this.state.opt0,d1:this.state.opt1,d2:this.state.opt2,d3:this.state.opt3,dapan:this.state.trueAns,socau:this.state.socau,uid:this.uid,email:this.email});
+        }else{
+            Alert.alert(
+                "Nhắc nhở",
+                "Bạn muốn nộp bài?",
+                [
+                    {
+                        text: "Không",
+                        onPress: () => null,
+                        style: "cancel",
                     },
-                    style: "cancel",
-                },
-            ],
-            {
-            cancelable: true,
-            onDismiss: () =>
-                Alert.alert(
-                "This alert was dismissed by tapping outside of the alert dialog."
-                ),
-            }
-        );
-        console.log(this.uid)
+                    {
+                        text: "Có",
+                        onPress: ()=>{
+                            this.getUser(this.uid);
+                                console.log("nop bai");
+                                this.dvt();
+                                //console.log('diem: ',this.diems);
+                                //console.log("da lam: ",this.state.answ);
+                                this.nvt.navigate('kq',{diem:this.diems,item:this.state.item,itemK:this.state.itemK,ds:this.state.o,bailam:this.state.answ,cauhoi:this.state.nameqs,d0:this.state.opt0,d1:this.state.opt1,d2:this.state.opt2,d3:this.state.opt3,dapan:this.state.trueAns,socau:this.state.socau,uid:this.uid,email:this.email});
+                        },
+                        style: "cancel",
+                    },
+                ],
+                {
+                cancelable: true,
+                onDismiss: () =>
+                    Alert.alert(
+                    "This alert was dismissed by tapping outside of the alert dialog."
+                    ),
+                }
+            );
+            console.log(this.uid)
+        }
+        
         
     };
 
@@ -418,6 +429,15 @@ export default class testScreen extends React.Component{
 
 
 
+    chiatg(){
+        console.log('ok',this.state.tgian)
+        if(this.state.tgian==50){
+            return true
+            
+        }else{
+            return false
+        }
+    }
 
 
 
@@ -490,16 +510,23 @@ export default class testScreen extends React.Component{
     const { route,navigation } = this.props;
     const { baitap,name} = route.params;
     const i = baitap;
+    const tg = this.state.tgian;
     var l = this.state.itemQ;
-    console.log('answ: ',this.state.answ[this.state.itemQ])
+    //console.log('answ: ',this.state.answ[this.state.itemQ])
+    const question1 = this.state.q;
     const question = {html: this.state.q};
     const questiona = this.state.q
     //console.log(this.tagsStyles);
     //console.log(this.state.o);
-    console.log('render');
+    console.log('render',this.state.o);
     //console.log('o:',this.state.o);
     //console.log('o:',this.state.o)
-
+    const source = {
+        html: `
+      <p style='text-align:center;'>
+        Hello World!
+      </p>`
+      };
     const duoilentren = {
         from: {
           opacity: 0,
@@ -532,27 +559,41 @@ export default class testScreen extends React.Component{
                     <Icon name = {'arrow-back-ios'} size={20} color={'black'} style={{margin:5,}} />
                 </TouchableOpacity>
                 <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',flex:1,}}>
-                    <CountDown
-                        size={17}
-                        until={15*60} 
-                        onFinish={()=>this.nopbai()}
-                        digitStyle={{backgroundColor: '#FFF',}}
-                        digitTxtStyle={{color: '#53ad71'}}
-                        timeLabelStyle={{color: 'red',fontWeight:'300'}}
-                        separatorStyle={{color: '#53ad71'}}
-                        timeToShow={['M', 'S']}
-                        timeLabels={{m: null, s: null}}
-                        showSeparator
-                        />  
+                    { this.chiatg() ?
+                                <CountDown
+                                size={17}
+                                until={50*60} 
+                                onFinish={()=>this.nopbai(true)}
+                                digitStyle={{backgroundColor: '#FFF',}}
+                                digitTxtStyle={{color: '#53ad71'}}
+                                timeLabelStyle={{color: 'red',fontWeight:'300'}}
+                                separatorStyle={{color: '#53ad71'}}
+                                timeToShow={['M', 'S']}
+                                timeLabels={{m: null, s: null}}
+                                showSeparator
+                                />  :
+                                <CountDown
+                                size={17}
+                                until={10*60} 
+                                onFinish={()=>this.nopbai(true)}
+                                digitStyle={{backgroundColor: '#FFF',}}
+                                digitTxtStyle={{color: '#53ad71'}}
+                                timeLabelStyle={{color: 'red',fontWeight:'300'}}
+                                separatorStyle={{color: '#53ad71'}}
+                                timeToShow={['M', 'S']}
+                                timeLabels={{m: null, s: null}}
+                                showSeparator
+                                />  
+                    }
                     <Icon name = {'alarm'} size={20} color={'#1CC625'} style={{margin:5,}} />
                 </View>
                 <View style={{flex:1,justifyContent:'flex-end',flexDirection:'row',paddingRight:5,}}>
-                    <TouchableOpacity onPress={()=>this.nopbai()} style={styles.btnNopbai}>
+                    <TouchableOpacity onPress={()=>this.nopbai(false)} style={styles.btnNopbai}>
                         <Text style={{color:'#fff',fontSize:15,}}>Nộp bài</Text>
                     </TouchableOpacity>
                 </View>
             </View>
-            <ScrollView  horizontal={true} showsHorizontalScrollIndicator={false} >
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} >
                 {
                             
                     [...Array(this.state.socau)].map((o,n) => {
@@ -593,6 +634,7 @@ export default class testScreen extends React.Component{
                     stylesheet={this.tagsStyles}
                     value={questiona}
                 />
+                
 
             </View>
            
@@ -625,15 +667,15 @@ export default class testScreen extends React.Component{
                                                                                                                     borderRadius:10,
                                                                                                                     padding:15,
                                                                                                                     marginBottom:'6%',
-                                                                                                                    elevation:1,}} >
-                                    <TouchableOpacity onPress={onSelect} style={{flexDirection:'row',}} >
+                                                                                                                    elevation:1,height:windowHeight/10}} >
+                                    <TouchableOpacity onPress={onSelect} style={{flexDirection:'row',width: '100%',height:'100%',}} >
                                         <Text style={styles.abcd}></Text>
-                                        <View style={{top:5,}}>
-                                            
-                                            <HTMLView
-                                            stylesheet={this.tagsStylesC}
-                                            value={option}
-                                        />
+                                        <View style={{width: '100%',height:'100%',borderWidth:0,backgroundColor:'#ffffff00',}}>
+                                            <WebView
+                                                originWhitelist={['*']}
+                                                source={{html: option}}
+                                                style={{width: '280%',height:'280%',backgroundColor:'#ffffff00',borderWidth:0,color:'#fff'}}
+                                            />
                                         </View>
                                     </TouchableOpacity>
                                 </LinearGradient>
@@ -647,13 +689,14 @@ export default class testScreen extends React.Component{
                                                                                         borderRadius:10,
                                                                                         padding:15,
                                                                                         flexDirection:'row',
-                                                                                        marginBottom:'6%',}}>
+                                                                                        marginBottom:'6%',
+                                                                                        height:windowHeight/10}}>
                                     <Text style={styles.abcd}></Text>
-                                    <View style={{top:5,}}>
-                                        
-                                        <HTMLView
-                                        stylesheet={this.tagsStylesB}
-                                            value={option}
+                                    <View style={{width: '100%',height:'100%',borderWidth:0,backgroundColor:'#ffffff00'}}>
+                                        <WebView
+                                            originWhitelist={['*']}
+                                            source={{html: option}}
+                                            style={{width: '280%',height:'280%'}}
                                         />
                                     </View>
                                 </TouchableOpacity>
@@ -673,6 +716,7 @@ export default class testScreen extends React.Component{
         </ScrollView>
         )}
         <View style={styles.vw4}>
+        
                 <TouchableOpacity  onPress={()=>this.goBack(this.state.itemQ-1)} style={{display:this.state.hideBack,
                                                                                         flexDirection:'row',
                                                                                         height:'58%',
@@ -780,7 +824,6 @@ const styles = StyleSheet.create({
     abcd:{
         color:'#1CC625',
         fontSize:20,
-        marginRight:8,
     },
     txtAnswer:{
         marginLeft:5,
