@@ -29,7 +29,7 @@ Verson:1.2 (03/03/2022)
 - Add user info form    
 - Add logout
 
-Update(03/05/2022)
+Update(03/05/2022)  
 
 
 - Fixed not showing some exercises
@@ -65,3 +65,4 @@ Update(04/16/2022)
 - Update the interface
 - Check email in from dangky
 - ...
+.
