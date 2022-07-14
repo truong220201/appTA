@@ -65,10 +65,35 @@ export default class huongdan extends React.Component{
             o:[],
             ans:'',
             answ:[0,0,0,0,0,0,0,0,0,0],
+            //id option
+            idOpt:[]
         };
-
+        this.socau=socau,
+        this.tg=tg,
+        this.isLoading=true,
+        this.hideBack='flex',
+        this.hideNext='flex',
+        this.timer=500,
+        this.keys=[],
+        this.item=[],
+        this.itemQ=1,
+        this.opt0=[],
+        this.opt1=[],
+        this.opt2=[],
+        this.opt3=[],
+        this.itemK=[],
+        this.nameqs=[],
+        this.leng=0,
+        this.trueAns=[],
+        this.selectedOption='',
+        this.optList=[],
+        this.o=[],
+        this.ans='',
+        this.answ=[0,0,0,0,0,0,0,0,0,0],
+        //id option
+        this.idOpt=[]
         
-        this.opt = this.state.options;
+        //this.opt = this.state.options;
       }
 
 
@@ -83,25 +108,32 @@ export default class huongdan extends React.Component{
             [...Array(this.i.length)].map((o,n) => {
                 if(this.i[n] == `${doc.data().Id_cate_mtct}`){
                     //console.log('ok');
+                    /*
                     this.setState({
                         
                         itemK:[...this.state.itemK,`${doc.id}`],
                         nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
                     })
+                    */
+                    this.itemK=[...this.itemK,`${doc.id}`]
+                    this.nameqs=[...this.nameqs,`${doc.data().name_Question}`]
                     //console.log('length item k: ',this.state.itemK.length);
-                }
-                else if(this.i[n] == 1){
+                }else if(this.i[n] == 1){
+                    /*
                     this.setState({
                         itemK:[...this.state.itemK,`${doc.id}`],
                         nameqs:[...this.state.nameqs,`${doc.data().name_Question}`], 
                     })
+                    */
+                    this.itemK=[...this.itemK,`${doc.id}`]
+                    this.nameqs=[...this.nameqs,`${doc.data().name_Question}`]
                 }
             })
             
         })
         //random itemK va nameqs
         
-        this.shuffle(this.state.itemK,this.state.nameqs)
+        this.shuffle(this.itemK,this.nameqs,this.idOpt)
     }
 
     //lay item tu option 
@@ -123,9 +155,10 @@ export default class huongdan extends React.Component{
          //console.log(this.state.item.length);
          //console.log('idqs: ',`${doc.data().id_Question}`);
          //console.log(this.state.itemK.length);
-         [...Array(this.state.itemK.length)].map((o,n) => {
-            if(this.state.itemK[n] == `${doc.data().id_Question}`){
+         [...Array(this.itemK.length)].map((o,n) => {
+            if(this.itemK[n] == `${doc.data().id_Question}`){
                //console.log('ok:',this.state.opt0);
+               /*
                 this.setState({
                     //item:this.state.item.push(data)
                     //item:Object.keys(`${doc.data().Title}`)
@@ -137,7 +170,18 @@ export default class huongdan extends React.Component{
                     opt3:[...this.state.opt3,`${doc.data().Option_ans[3]}`],
                     trueAns:[...this.state.trueAns,`${doc.data().True_ans}`],
                     isLoading:false,
+                    idOpt:[...this.state.idOpt,`${doc.id}`],
                 });
+                */
+                this.item=[...this.item,`${doc.data().id_Question}`],
+                //nameqs:[...this.state.nameqs,1],
+                this.opt0=[...this.opt0,`${doc.data().Option_ans[0]}`],
+                this.opt1=[...this.opt1,`${doc.data().Option_ans[1]}`],
+                this.opt2=[...this.opt2,`${doc.data().Option_ans[2]}`],
+                this.opt3=[...this.opt3,`${doc.data().Option_ans[3]}`],
+                this.trueAns=[...this.trueAns,`${doc.data().True_ans}`],
+                this.isLoading=false,
+                this.idOpt=[...this.idOpt,`${doc.id}`]
                 //console.log('length item k: ',this.state.itemK);
             }
         })
@@ -152,12 +196,15 @@ export default class huongdan extends React.Component{
         //console.log('item:'+this.state.item);
         //console.log('length:'+this.state.leng);
     }
-
+    
     componentDidMount(){
         this.listenForItemsQS();
         this.listenForItems();
     }
-
+    full(){
+        this.listenForItemsQS();
+        this.listenForItems();
+    }
     // random cau hoi/ tra loi
     shuffle(arraya,arrayb) {
         let currentIndex = arraya.length,  randomIndex;
@@ -182,12 +229,13 @@ export default class huongdan extends React.Component{
         return arraya,arrayb;
       }
 
+
   render(){
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const { navigation,route } = this.props;
     const { loaiId, ten,id,name,uid,email} = route.params;
-    
+    console.log('render')
     
     this.uid=uid;
     this.email=email;
@@ -234,7 +282,7 @@ export default class huongdan extends React.Component{
                     </View>
                     <View style={styles.contentA}> 
                         <Text style={styles.txtA}>Thời gian</Text>
-                        <Text style={styles.txtB}>{this.state.tg} Phút</Text>
+                        <Text style={styles.txtB}>{this.tg} Phút</Text>
                     </View>
                 </View>
             </Animatable.Text>
@@ -251,7 +299,7 @@ export default class huongdan extends React.Component{
                 </View>
                 <View style={styles.contentA}>
                     <Text style={styles.txtA}>Số câu</Text>
-                    <Text style={styles.txtB}>{this.state.socau}</Text>
+                    <Text style={styles.txtB}>{this.socau}</Text>
                 </View>
             </View>
             </Animatable.Text>
@@ -268,6 +316,7 @@ export default class huongdan extends React.Component{
                     <Text style={styles.txtD}>3. Nộp bài để nhận kết quả</Text>
                 </View>
             </View>
+            
             <AdMobBanner
       bannerSize="fullBanner"
       adUnitID="ca-app-pub-6851800445634158/6549335557" // Test ID, Replace with your-admob-unit-id
@@ -276,9 +325,21 @@ export default class huongdan extends React.Component{
         </View>
 
         <View style={styles.vw4}>
-            <TouchableOpacity onPress={()=>navigation.navigate('testScreen',{baitap: id,n:1,ten:ten,uid:uid,email:email,itemK:this.state.itemK,nameqs:this.state.nameqs,item:this.state.item,opt0:this.state.opt0,opt1:this.state.opt1,opt2:this.state.opt2,opt3:this.state.opt3,trueAns:this.state.trueAns,socau:this.state.socau})} style={styles.btnStart}>
-                <Text style={styles.txtStart}>Làm bài</Text>
-            </TouchableOpacity>
+            <LinearGradient  start={{x: 0, y: 0.75}} end={{x: 1, y: 0.25}} colors={[ '#6bdb91' , '#6bdb91' , '#6bdb91' , '#b9f5dc']}  style={{borderWidth:0,
+                                                                                                                        height:50,
+                                                                                                                        width:'95%',
+                                                                                                                        alignSelf:'center',
+                                                                                                                        borderColor:'#1CC625',
+                                                                                                                        borderRadius:10,
+                                                                                                                        marginBottom:'6%',
+                                                                                                                        elevation:1,
+                                                                                                                        }} >
+                <TouchableOpacity onPress={()=>navigation.navigate('testScreen',{baitap: id,n:1,ten:ten,uid:uid,email:email,itemK:this.itemK,nameqs:this.nameqs,item:this.item,opt0:this.opt0,opt1:this.opt1,opt2:this.opt2,opt3:this.opt3,trueAns:this.trueAns,socau:this.socau,tg:this.tg,idOpt:this.idOpt})} style={{alignItems:'center',}}>
+                    <View style={{height:'100%',justifyContent:'center'}}>
+                        <Text style={{fontSize:20,color:'#fff'}}>Làm bài</Text>
+                    </View>
+                </TouchableOpacity>      
+            </LinearGradient>
         </View>
     </View>
 )
@@ -315,7 +376,7 @@ const styles = StyleSheet.create({
     },
     vw4:{
         width:'100%',
-        flex:2,
+        flex:1,
         alignItems:'center',
     },
     yellowView:{
