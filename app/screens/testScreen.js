@@ -13,8 +13,7 @@ import { doc, setDoc } from "firebase/firestore";
 
 
 import HTMLView from 'react-native-htmlview';
-import RenderHTML from 'react-native-render-html';
-import { WebView } from 'react-native-webview';
+import { WebView } from 'react-native-webview'; 
 
 
 import * as Animatable from 'react-native-animatable';
@@ -29,7 +28,7 @@ export default class testScreen extends React.Component{
         //console.log(this.itemRef);
         const { route,navigation } = this.props;
         this.nvt = navigation;
-        const { baitap,n,ten,uid,email,itemK,nameqs,item,opt0,opt1,opt2,opt3,trueAns,socau,tg} = route.params;
+        const { baitap,n,ten,uid,email,itemK,nameqs,item,opt0,opt1,opt2,opt3,trueAns,socau,tg,idOpt} = route.params;
         //console.log('baitap:',opt0);
         console.log('uid form test:',uid)
 
@@ -38,6 +37,7 @@ export default class testScreen extends React.Component{
             span: {
               color:'black',
               fontSize:18,
+              
             },
           };
           this.tagsStylesB = {
@@ -95,6 +95,9 @@ export default class testScreen extends React.Component{
             o:['','','',''],
             ans:'',
             answ:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            //id option
+            idOption:idOpt,
+            idO:''
         };
         
         this.opt = this.state.options;
@@ -197,6 +200,7 @@ export default class testScreen extends React.Component{
                     //answ:[...this.state.answ[inum-1]=this.state.trueAns[inum-1]],
                     //opt0:[...this.state.opt0,`${doc.data().Option_ans[0]}`],
                     isLoading:false,
+                    idO:this.state.idOption[n],
                 })
                 //console.log('helloc');
             }
@@ -501,14 +505,13 @@ export default class testScreen extends React.Component{
 
 
 
-
     
 
   render(){
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const { route,navigation } = this.props;
-    const { baitap,name} = route.params;
+    const { baitap,name,idOpt} = route.params;
     const i = baitap;
     const tg = this.state.tgian;
     var l = this.state.itemQ;
@@ -518,7 +521,7 @@ export default class testScreen extends React.Component{
     const questiona = this.state.q
     //console.log(this.tagsStyles);
     //console.log(this.state.o);
-    console.log('render',this.state.o);
+    console.log('render',idOpt);
     //console.log('o:',this.state.o);
     //console.log('o:',this.state.o)
     const source = {
@@ -554,11 +557,11 @@ export default class testScreen extends React.Component{
         <View style={{width:windowWidth,height:windowHeight}}>
         <View style={styles.vw1}>
 
-            <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',margin:10,}}>
+            <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',padding:10,borderWidth:0,flex:1}}>
                 <TouchableOpacity style={{marginLeft:10,flex:1,justifyContent:'flex-start',flexDirection:'row'}} onPress={()=>this.qsExit()}>
                     <Icon name = {'arrow-back-ios'} size={20} color={'black'} style={{margin:5,}} />
                 </TouchableOpacity>
-                <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',flex:1,}}>
+                <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',flex:5,}}>
                     { this.chiatg() ?
                                 <CountDown
                                 size={17}
@@ -593,28 +596,53 @@ export default class testScreen extends React.Component{
                     </TouchableOpacity>
                 </View>
             </View>
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} >
+
+            <View style={{borderWidth:0,paddingTop:10,flex:2,paddingBottom:10}}>
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{borderWidth:0,}}>
                 {
                             
                     [...Array(this.state.socau)].map((o,n) => {
                         
                         if(n+1==l){
                             return(
-                                <TouchableOpacity key={this.baitap} onPress={()=>null} style={styles.btnCList}>
-                                    <Text style={{color:'#fff',fontSize:15,}}>{n+1}</Text>
+                                <TouchableOpacity key={n} onPress={()=>null} style={{borderWidth:0,
+                                                                                        margin:5,
+                                                                                        height:windowHeight/17,
+                                                                                        width: windowHeight/17,
+                                                                                        borderRadius:30,
+                                                                                        //borderColor:'#1CC625',
+                                                                                        backgroundColor:'#63cc7b',
+                                                                                        alignItems:'center',
+                                                                                        justifyContent:'center',}}>
+                                                                                        <Text style={{color:'#fff',fontSize:15,}}>{n+1}</Text>
                                 </TouchableOpacity>
                             )
                         }else{
                             if(this.state.answ[n] !=0){
                                 return(
-                                    <TouchableOpacity key={this.baitap} onPress={()=>this.goto(n+1)} style={styles.btnDList}>
-                                        <Text style={{color:'#fff',fontSize:15,}}>{n+1}</Text>
+                                    <TouchableOpacity key={n} onPress={()=>this.goto(n+1)} style={{ borderWidth:0,
+                                                                                                        margin:5,
+                                                                                                        height:windowHeight/17,
+                                                                                                        width: windowHeight/17,
+                                                                                                        borderRadius:30,
+                                                                                                        //borderColor:'#1CC625',
+                                                                                                        backgroundColor:'#79c98b8f',
+                                                                                                        alignItems:'center',
+                                                                                                        justifyContent:'center',}}>
+                                                                                                        <Text style={{color:'#fff',fontSize:15,}}>{n+1}</Text>
                                     </TouchableOpacity>
                                 )
                             }else{
                                 return(
-                                    <TouchableOpacity key={this.baitap} onPress={()=>this.goto(n+1)} style={styles.btnList}>
-                                        <Text style={{color:'#b9b9b9',fontSize:15,}}>{n+1}</Text>
+                                    <TouchableOpacity key={n} onPress={()=>this.goto(n+1)} style={{borderWidth:1,
+                                                                                                    margin:5,
+                                                                                                    height:windowHeight/17,
+                                                                                                    width: windowHeight/17,
+                                                                                                    borderRadius:30,
+                                                                                                    borderColor:'#b9b9b9',
+                                                                                                    alignItems:'center',
+                                                                                                    justifyContent:'center',}}>
+                                                                                                    <Text style={{color:'#b9b9b9',fontSize:15,}}>{n+1}</Text>
                                     </TouchableOpacity>
                                 )
                             }
@@ -623,8 +651,9 @@ export default class testScreen extends React.Component{
                     )
                 }
             </ScrollView>
+            </View>
         </View>
-        <View style={{flex:5,}}>
+        <View style={{flex:5,borderWidth:0,}}>
         {this.state.isLoading ? <ActivityIndicator style={styles.vw2} size="large" color="#00ff00" />:(
         <ScrollView style={{width:windowWidth,}} showsScrollIndicator={false}>
             <View style={styles.vw2}>   
@@ -633,12 +662,10 @@ export default class testScreen extends React.Component{
                     <HTMLView
                     stylesheet={this.tagsStyles}
                     value={questiona}
-                />
-                
-
+                    />
             </View>
            
-            <View style={{marginLeft: 20,marginRight:20,}}>
+            <View style={{flex:10,borderWidth:0,width:'100%',alignItems:'center',padding:20}}>
             <RadioButtons
                 options={ this.state.o }
                 onSelection={ this.setSelectedOption.bind(this) }
@@ -674,7 +701,7 @@ export default class testScreen extends React.Component{
                                             <WebView
                                                 originWhitelist={['*']}
                                                 source={{html: option}}
-                                                style={{width: '280%',height:'280%',backgroundColor:'#ffffff00',borderWidth:0,color:'#fff'}}
+                                                style={{width: '280%',height:'280%',backgroundColor:'#ffffff00',borderWidth:0,color:'red'}}
                                             />
                                         </View>
                                     </TouchableOpacity>
@@ -715,6 +742,7 @@ export default class testScreen extends React.Component{
             
         </ScrollView>
         )}
+
         <View style={styles.vw4}>
         
                 <TouchableOpacity  onPress={()=>this.goBack(this.state.itemQ-1)} style={{display:this.state.hideBack,
@@ -780,28 +808,33 @@ const styles = StyleSheet.create({
         borderBottomColor:'#b5b5b5',
         marginTop:20,
         flex:1,
+        borderWidth:0
     },
     vw1a:{
     },
     
     vw2:{
         width:'100%',
-        flex:2,
-        padding:20,
+        flex:1,
+        paddingRight:20,
+        paddingLeft:20,
         justifyContent:'center',
+        borderWidth:0,
+
     },
     vw3:{
         width:'100%',
         flex:10,
         padding:10,
+        borderWidth:0
     },
     vw4:{
         width:'100%',
-        flex:2,
+        flex:3,
         flexDirection:'row',
         alignItems:'center',
         padding:5,
-
+        borderWidth:0
     },
     contentView:{
         borderWidth:2,
@@ -817,6 +850,7 @@ const styles = StyleSheet.create({
         fontSize:20,
         //marginBottom:'2%',
         flexDirection:'row',
+        borderWidth:0,
     },
     txtQuestion:{
         
