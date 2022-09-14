@@ -6,7 +6,7 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import front from './app/screens/front';
-import chontrinhdo from './app/screens/chontrinhdo';
+import chontrinhdo from './app/screens/chontrinhdo';  
 //layer trang chủ              
 import Home from './app/screens/Home';
 //layer sau khi ấn vào từng danh mục tại menu
@@ -106,4 +106,4 @@ const styles = StyleSheet.create({
     alignSelf:'center',
     width: 150,
   },
-});
+}) ;
